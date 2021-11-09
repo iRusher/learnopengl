@@ -76,7 +76,7 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader lightingShader("1.colors.vs", "1.colors.fs");
+    Shader lightingShader("1.color.vs", "1.color.fs");
     Shader lightCubeShader("1.light_cube.vs", "1.light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -146,8 +146,8 @@ int main()
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(10);
 
 
     // render loop

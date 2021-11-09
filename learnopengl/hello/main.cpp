@@ -9,6 +9,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <assimp/Importer.hpp>
 
 void process_input(GLFWwindow *window);
 
@@ -47,7 +48,7 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     
-    
+    Assimp::Importer importer;
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

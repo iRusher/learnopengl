@@ -9,7 +9,10 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <assimp/Importer.hpp>
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 void process_input(GLFWwindow *window);
 
@@ -21,13 +24,6 @@ int main(int argc, const char * argv[]) {
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-    
-//    https://www.glfw.org/docs/3.3/window_guide.html
-    
-//    int width = 0;
-//    int height = 0;
-//    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-//    std::cout << mode->width << " " << mode->height << std::endl;
     
     /* Create a windowed mode window and its OpenGL context  */
     window = glfwCreateWindow(640, 480, "Hello Window", NULL, NULL);
@@ -49,6 +45,15 @@ int main(int argc, const char * argv[]) {
     }
     
     Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile("./diablo3_pose.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cout << "import error" << std::endl;
+    }
+
+    aiNode *rootNode = scene->mRootNode;
+    for (int i = 0; i < rootNode->mNumMeshes; ++i) {
+        aiMesh *mesh = scene->mMeshes[rootNode->mMeshes[i]];
+    }
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

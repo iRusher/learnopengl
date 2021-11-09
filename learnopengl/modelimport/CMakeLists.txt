@@ -1,6 +1,8 @@
 
-add_executable(learn_hello main.cpp)
+configure_file(diablo3_pose.obj diablo3_pose.obj COPYONLY)
 
-target_link_libraries(learn_hello glfw)
-target_link_libraries(learn_hello glad)
-target_link_libraries(learn_hello assimp)
+add_executable(learn_modelimport main.cpp)
+
+target_link_libraries(learn_modelimport glfw)
+target_link_libraries(learn_modelimport glad)
+target_link_libraries(learn_modelimport assimp)

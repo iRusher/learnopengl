@@ -16,6 +16,10 @@ include_directories(glad/include)
 add_subdirectory(glm)
 include_directories(glm)
 
+#assimp
+add_subdirectory(assimp)
+include_directories(assimp/include)
+
 add_subdirectory(learnopengl)
 
 #target_link_libraries(simplerender glfw)
