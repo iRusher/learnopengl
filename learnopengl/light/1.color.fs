@@ -8,9 +8,12 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
+uniform float ambientStrength;
+uniform float specularStrength;
+
 void main()
 {
-    float ambientStrength = 0.1;
+//     float ambientStrength = 0.1;
     vec3 ambient = lightColor * ambientStrength;
 
     vec3 norm = normalize(Norm);
@@ -21,7 +24,7 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     // specular
-    float specularStrength = 0.5;
+//     float specularStrength = 0.5;
     vec3 viewDir = normalize(viewPos - FragPos);
     // reflect是入射光线，lightDir指向光源，取反即是入射光方向
     vec3 reflectDir = reflect(-lightDir,norm);
