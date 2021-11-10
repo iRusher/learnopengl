@@ -8,6 +8,9 @@
 #include "shader_m.h"
 #include "camera.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -77,55 +80,56 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader lightingShader("1.color.vs", "1.color.fs");
-    Shader lightCubeShader("1.light_cube.vs", "1.light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+
+
     // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO;
+    unsigned int VBO, cubeVAO,EBO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
 
@@ -133,24 +137,42 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindVertexArray(cubeVAO);
-
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) *3));
     glEnableVertexAttribArray(1);
 
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    unsigned int lightCubeVAO;
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
+    // load and create a texture
+    // -------------------------
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
 
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
+    int width,height,nrChannels;
+    unsigned char * data = stbi_load("container.jpg",&width,&height,&nrChannels,0);
+    if (!data) {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_set_flip_vertically_on_load(true);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
 
     // render loop
     // -----------
@@ -173,36 +195,6 @@ int main()
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("lightPos",lightPos);
-        lightingShader.setVec3("viewPos",camera.Position);
-
-
-        // 尝试表里的值 http://devernay.free.fr/cours/opengl/materials.html
-        // 表格里的 shininess*128
-        lightingShader.setVec3("material.ambient",0.0,	0.0,	0.0);
-        lightingShader.setVec3("material.diffuse",0.1,	0.35,	0.1);
-        lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
-        lightingShader.setFloat("material.shininess",32.0);
-
-
-        // 变换颜色
-//        glm::vec3 lightColor;
-//        lightColor.x = sin(glfwGetTime() * 2.0f);
-//        lightColor.y = sin(glfwGetTime() * 0.7f);
-//        lightColor.z = sin(glfwGetTime() * 1.3f);
-//
-//        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // 降低影响
-//        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
-//
-//        lightingShader.setVec3("light.ambient", ambientColor);
-//        lightingShader.setVec3("light.diffuse", diffuseColor);
-//        lightingShader.setVec3("light.specular",1.0f, 1.0f, 1.0f);
-
-        lightingShader.setVec3("light.ambient",1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("light.diffuse",1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("light.specular",1.0f, 1.0f, 1.0f);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -218,21 +210,6 @@ int main()
         glBindVertexArray(cubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-
-        // also draw the lamp object
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
-
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -242,7 +219,6 @@ int main()
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -276,7 +252,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
