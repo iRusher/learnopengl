@@ -1,6 +1,5 @@
 add_library(imgui STATIC)
 target_sources(imgui
-
 PRIVATE
     imgui_demo.cpp
     imgui_draw.cpp
@@ -17,8 +16,8 @@ target_include_directories(
         PUBLIC ./backends
 )
 
-add_executable(imgdemo)
-target_sources(imgdemo PUBLIC ./examples/example_glfw_opengl3/main.cpp)
-target_link_libraries(imgdemo glfw)
-target_link_libraries(imgdemo glad)
-target_link_libraries(imgdemo imgui)
+add_executable(imguidemo)
+target_sources(imguidemo PUBLIC ./examples/example_glfw_opengl3/main.cpp)
+target_link_libraries(imguidemo glfw)
+target_link_libraries(imguidemo glad)
+target_link_libraries(imguidemo imgui)

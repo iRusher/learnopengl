@@ -70,7 +70,7 @@ int main(int argc, const char * argv[]) {
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    const char* glsl_version = "#version 150";
+    const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     bool show_demo_window = false;

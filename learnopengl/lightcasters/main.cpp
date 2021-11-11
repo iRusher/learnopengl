@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -85,7 +84,7 @@ int main()
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    const char* glsl_version = "#version 150";
+    const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     bool show_demo_window = true;
@@ -96,8 +95,10 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader lightingShader("1.color.vs", "1.color.fs");
-    Shader lightCubeShader("1.light_cube.vs", "1.light_cube.fs");
+//    Shader lightingShader("cube.vs", "directional.fs"); //平行光
+    Shader lightingShader("cube.vs", "point.fs"); //点光源
+//    Shader lightingShader("cube.vs", "spot.fs"); //聚光
+    Shader lightCubeShader("light_cube.vs", "light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -239,6 +240,8 @@ int main()
             ImGui::End();
         }
 
+        lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),2,2);
+
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
         lightingShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
@@ -246,19 +249,24 @@ int main()
         lightingShader.setVec3("lightPos",lightPos);
         lightingShader.setVec3("viewPos",camera.Position);
 
-        lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
-        lightingShader.setFloat("material.shininess",128.0);
-
+//        lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
+        lightingShader.setFloat("material.shininess",32.0);
 
         lightingShader.setVec3("light.direction",-0.2f, -1.0f, -0.3f);
+        lightingShader.setVec3("light.position",lightPos);
         lightingShader.setVec3("light.ambient",0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse",0.5f, 0.5f, 0.5f);
         lightingShader.setVec3("light.specular",1.0f, 1.0f, 1.0f);
+
+        lightingShader.setFloat("light.constant",1.0f);
+        lightingShader.setFloat("light.linear",0.09f);
+        lightingShader.setFloat("light.quadratic",0.032f);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D,texture2);
+
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
