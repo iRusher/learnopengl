@@ -332,6 +332,9 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS)
+        firstMouse = true;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -347,7 +350,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) return;
-
 
     if (firstMouse)
     {
