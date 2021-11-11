@@ -10,3 +10,4 @@ add_executable(learn_lightcasters main.cpp)
 
 target_link_libraries(learn_lightcasters glfw)
 target_link_libraries(learn_lightcasters glad)
+target_link_libraries(learn_lightcasters imgui)
