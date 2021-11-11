@@ -3,6 +3,7 @@ configure_file(1.color.vs 1.color.vs COPYONLY)
 configure_file(1.light_cube.fs 1.light_cube.fs COPYONLY)
 configure_file(1.light_cube.vs 1.light_cube.vs COPYONLY)
 configure_file(container.png container.png COPYONLY)
+configure_file(container2_specular.png container2_specular.png COPYONLY)
 
 include_directories(../include)
 add_executable(learn_lightmapping main.cpp)
