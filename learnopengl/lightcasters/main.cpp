@@ -96,8 +96,8 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
 //    Shader lightingShader("cube.vs", "directional.fs"); //平行光
-    Shader lightingShader("cube.vs", "point.fs"); //点光源
-//    Shader lightingShader("cube.vs", "spot.fs"); //聚光
+//    Shader lightingShader("cube.vs", "point.fs"); //点光源
+    Shader lightingShader("cube.vs", "spot.fs"); //聚光
     Shader lightCubeShader("light_cube.vs", "light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -193,6 +193,10 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
+    GLint count;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&count);
+    std::cout << count << std::endl;
+
     unsigned int texture1 = loadTexture("container.png");
     unsigned int texture2 = loadTexture("container2_specular.png");
     lightingShader.use();
@@ -217,28 +221,28 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        {
-            static float f = 0.0f;
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
+//        ImGui_ImplOpenGL3_NewFrame();
+//        ImGui_ImplGlfw_NewFrame();
+//        ImGui::NewFrame();
+//        {
+//            static float f = 0.0f;
+//            static int counter = 0;
+//
+//            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+//
+//            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+//            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+//
+//            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+//
+//            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+//                counter++;
+//            ImGui::SameLine();
+//            ImGui::Text("counter = %d", counter);
+//
+//            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+//            ImGui::End();
+//        }
 
         lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),2,2);
 
@@ -252,8 +256,16 @@ int main()
 //        lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
         lightingShader.setFloat("material.shininess",32.0);
 
-        lightingShader.setVec3("light.direction",-0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("light.position",lightPos);
+        // for point light
+//        lightingShader.setVec3("light.direction",-0.2f, -1.0f, -0.3f);
+//        lightingShader.setVec3("light.position",lightPos);
+//
+        // for spot light
+        lightingShader.setVec3("light.direction",camera.Front);
+        lightingShader.setVec3("light.position",camera.Position);
+        lightingShader.setFloat("light.cutoff",glm::cos(glm::radians(5.0f)));
+
+
         lightingShader.setVec3("light.ambient",0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse",0.5f, 0.5f, 0.5f);
         lightingShader.setVec3("light.specular",1.0f, 1.0f, 1.0f);
@@ -267,7 +279,6 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D,texture2);
 
-
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
@@ -278,9 +289,9 @@ int main()
 
         for (int i = 0; i < 10; ++i) {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model,cubePositions[i]);
+            model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
-            model = glm::rotate(model,glm::radians(angle),glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
             lightingShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
@@ -299,9 +310,9 @@ int main()
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
 
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//        // Rendering
+//        ImGui::Render();
+//        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
