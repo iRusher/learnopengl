@@ -20,4 +20,7 @@ include_directories(glm)
 add_subdirectory(assimp)
 include_directories(assimp/include)
 
+#imgui
+add_subdirectory(imgui)
+
 add_subdirectory(learnopengl)
