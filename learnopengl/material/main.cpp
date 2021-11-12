@@ -178,14 +178,12 @@ int main()
         lightingShader.setVec3("lightPos",lightPos);
         lightingShader.setVec3("viewPos",camera.Position);
 
-
         // 尝试表里的值 http://devernay.free.fr/cours/opengl/materials.html
         // 表格里的 shininess*128
         lightingShader.setVec3("material.ambient",0.0,	0.0,	0.0);
         lightingShader.setVec3("material.diffuse",0.1,	0.35,	0.1);
         lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
         lightingShader.setFloat("material.shininess",32.0);
-
 
         // 变换颜色
 //        glm::vec3 lightColor;
