@@ -24,7 +24,13 @@ struct Light {
     vec3 diffuse;
     vec3 specular;
 
+    float constant;
+    float linear;
+    float quadratic;
+
     float cutoff;
+    float outerCutOff;
+
 };
 
 uniform Material material;
@@ -33,31 +39,33 @@ uniform Light light;
 
 void main()
 {
-//     float ambientStrength = 0.1;
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse,TextCoord).rgb);
 
-// diff
-    vec3 norm = normalize(Norm);
     vec3 lightDir = normalize(light.position - FragPos);
+    float theta = dot(lightDir,normalize(-light.direction));
+    float epsilon = light.cutoff - light.outerCutOff;
+    float intensity = clamp( (theta - light.outerCutOff)/epsilon ,0.0,1.0);
+
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse,TextCoord));
+
+    // diff
+    vec3 norm = normalize(Norm);
     float diff = max(dot(norm ,lightDir) , 0.0);
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TextCoord).rgb);
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TextCoord));
 
     // specular
     vec3 viewDir = normalize(viewPos - FragPos);
-    // reflect是入射光线，lightDir指向光源，取反即是入射光方向
+    // reflect需要光线入射方向，lightDir指向光源，取反即是入射光方向
     vec3 reflectDir = reflect(-lightDir,norm);
-
     float spec = pow(max(dot(viewDir,reflectDir),0.0),material.shininess);
-    vec3 specular = light.specular *  spec * vec3(texture(material.specular,TextCoord).rgb);
+    vec3 specular = light.specular *  spec * vec3(texture(material.specular,TextCoord));
 
-    float theta = dot(lightDir,normalize(-light.direction));
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance );
 
-    if (theta > light.cutoff) {
-        vec3 result = ( ambient + diffuse + specular ) * objectColor;
-        FragColor = vec4(result, 1.0);
-    } else {
-        vec3 result = light.ambient * vec3(texture(material.diffuse, TextCoord).rgb);
-        FragColor = vec4(result, 1.0);
-    }
+    diffuse *= intensity;
+    specular *= intensity;
+
+    vec3 result = ( ambient + diffuse + specular );
+    FragColor = vec4(result, 1.0);
 
 }

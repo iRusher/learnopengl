@@ -14,7 +14,7 @@ out vec2 TextCoord;
 void main()
 {
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
-    FragPos = vec3(view * vec4(aPos, 1.0));
+    FragPos = vec3(model * vec4(aPos, 1.0));
 	Norm = mat3(transpose(inverse(model))) * aNorm;
     TextCoord = aTextCoord;
 }

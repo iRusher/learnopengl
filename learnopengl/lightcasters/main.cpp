@@ -263,8 +263,8 @@ int main()
         // for spot light
         lightingShader.setVec3("light.direction",camera.Front);
         lightingShader.setVec3("light.position",camera.Position);
-        lightingShader.setFloat("light.cutoff",glm::cos(glm::radians(5.0f)));
-
+        lightingShader.setFloat("light.cutoff",glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff",glm::cos(glm::radians(17.5f)));
 
         lightingShader.setVec3("light.ambient",0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse",0.5f, 0.5f, 0.5f);
@@ -273,6 +273,7 @@ int main()
         lightingShader.setFloat("light.constant",1.0f);
         lightingShader.setFloat("light.linear",0.09f);
         lightingShader.setFloat("light.quadratic",0.032f);
+
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,texture1);
