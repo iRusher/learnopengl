@@ -199,9 +199,6 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
-    GLint count;
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&count);
-    std::cout << count << std::endl;
 
     unsigned int texture1 = loadTexture("container.png");
     unsigned int texture2 = loadTexture("container2_specular.png");
@@ -237,17 +234,17 @@ int main()
         ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
         ImGui::Begin("Light Cube Color");
         static float col1[3] = { 1.0f, 0.0f, 0.2f };
-        static float col2[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
         ImGui::ColorEdit3("color 1", col1);
         ImGui::End();
 
+
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("lightPos",lightPos);
         lightingShader.setVec3("viewPos",camera.Position);
 
         // material
         lightingShader.setFloat("material.shininess",32.0);
+        glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,texture1);
         glActiveTexture(GL_TEXTURE1);
@@ -293,13 +290,26 @@ int main()
         lightingShader.setFloat("pointLights[3].linear", 0.09);
         lightingShader.setFloat("pointLights[3].quadratic", 0.032);
 
+        // spotLight
+        lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),0,2);
+        lightingShader.setVec3("spotLight.direction", camera.Front);
+        lightingShader.setVec3("spotLight.position", lightPos);
+        lightingShader.setVec3("spotLight.ambient", col1[0], col1[1], col1[2]);
+        lightingShader.setVec3("spotLight.diffuse", col1[0], col1[1], col1[2]);
+        lightingShader.setVec3("spotLight.specular", col1[0], col1[1], col1[2]);
+        lightingShader.setFloat("spotLight.constant", 1.0f);
+        lightingShader.setFloat("spotLight.linear", 0.09);
+        lightingShader.setFloat("spotLight.quadratic", 0.032);
+        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
-        glBindVertexArray(cubeVAO);
+
         for (int i = 0; i < 10; ++i) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
@@ -310,11 +320,10 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
         }
 
-//        // also draw the lamp object
+        // also draw the lamp object
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
-
 
         for (int i = 0; i < pointLightPositions->length(); ++i) {
             glm::mat4 model = glm::mat4(1.0f);

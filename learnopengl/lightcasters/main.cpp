@@ -221,50 +221,21 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        ImGui_ImplOpenGL3_NewFrame();
-//        ImGui_ImplGlfw_NewFrame();
-//        ImGui::NewFrame();
-//        {
-//            static float f = 0.0f;
-//            static int counter = 0;
-//
-//            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-//
-//            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-//            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-//
-//            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-//
-//            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-//                counter++;
-//            ImGui::SameLine();
-//            ImGui::Text("counter = %d", counter);
-//
-//            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//            ImGui::End();
-//        }
 
-        lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),2,2);
-
-        // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("lightColor",  0.5f, 0.5f, 0.5f);
+
+        lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),0,2);
         lightingShader.setVec3("lightPos",lightPos);
         lightingShader.setVec3("viewPos",camera.Position);
 
-//        lightingShader.setVec3("material.specular",0.45,	0.55,	0.45);
         lightingShader.setFloat("material.shininess",32.0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D,texture2);
 
-        // for point light
-//        lightingShader.setVec3("light.direction",-0.2f, -1.0f, -0.3f);
-//        lightingShader.setVec3("light.position",lightPos);
-//
-        // for spot light
         lightingShader.setVec3("light.direction",camera.Front);
-        lightingShader.setVec3("light.position",camera.Position);
-        lightingShader.setFloat("light.cutoff",glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("light.outerCutOff",glm::cos(glm::radians(17.5f)));
+        lightingShader.setVec3("light.position",lightPos);
 
         lightingShader.setVec3("light.ambient",0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse",0.5f, 0.5f, 0.5f);
@@ -274,11 +245,8 @@ int main()
         lightingShader.setFloat("light.linear",0.09f);
         lightingShader.setFloat("light.quadratic",0.032f);
 
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D,texture2);
+        lightingShader.setFloat("light.cutoff",glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff",glm::cos(glm::radians(17.5f)));
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -298,7 +266,6 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
         }
 
-//        // also draw the lamp object
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
@@ -310,10 +277,6 @@ int main()
 
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
-
-//        // Rendering
-//        ImGui::Render();
-//        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
