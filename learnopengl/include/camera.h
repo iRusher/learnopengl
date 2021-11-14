@@ -116,8 +116,6 @@ class Camera
                 Zoom = 1.0f;
             if (Zoom > 45.0f)
                 Zoom = 45.0f;
-
-            std::cout << Zoom <<std::endl;
         }
 
         private:
