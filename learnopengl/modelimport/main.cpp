@@ -71,8 +71,6 @@ void imguiInit(GLFWwindow *window);
 void imguiSetup();
 float col1[3] = { 1.0f, 0.0f, 0.2f };
 
-
-
 int main()
 {
     // glfw: initialize and configure
@@ -273,10 +271,9 @@ int main()
 
         ImGui::ShowDemoWindow(&showDemo);
 
-        ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
-        ImGui::Begin("Light Cube Color");
-        ImGui::ColorEdit3("color 1", col1);
-
+        ImGui::SetNextWindowSize(ImVec2(414 * 2,375 * 2),ImGuiCond_FirstUseEver);
+        ImGui::Begin("RenderViewer");
+        ImGui::Text("Test");//至少要添加一个widget，不然不会渲染window
         ImGuiWindow *currentImgWindow = ImGui::GetCurrentContext()->CurrentWindow;
         ImRect rect = currentImgWindow->Rect();
         gContext->rect = rect;
@@ -284,10 +281,12 @@ int main()
             drawCube(gContext);
         }, nullptr);
         currentImgWindow->DrawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
-
         ImGui::End();
 
-
+        ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
+        ImGui::Begin("Light Cube Color");
+        ImGui::ColorEdit3("color 1", col1);
+        ImGui::End();
 
         // Rendering
         ImGui::Render();
@@ -536,5 +535,5 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     }
 
     glActiveTexture(last_active_texture);
-
 }
+

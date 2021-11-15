@@ -116,10 +116,6 @@ vec3 CalPoint(PointLight light,vec3 normal,vec3 viewDir)
 vec3 CalSpotLight(SpotLight light,vec3 normal,vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - FragPos);
-    float theta = dot(lightDir,normalize(-light.direction));
-    float epsilon = light.cutOff - light.outerCutOff;
-    float intensity = clamp( (theta - light.outerCutOff)/epsilon ,0.0,1.0);
-
     vec3 ambient = light.ambient * vec3(texture(material.diffuse,TextCoord));
 
     // diff
@@ -134,6 +130,10 @@ vec3 CalSpotLight(SpotLight light,vec3 normal,vec3 viewDir)
 
     float distance = length(light.position - FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance );
+
+    float theta = dot(lightDir,normalize(-light.direction));
+    float epsilon = light.cutOff - light.outerCutOff;
+    float intensity = clamp( (theta - light.outerCutOff)/epsilon ,0.0,1.0);
 
     ambient *= intensity * attenuation;
     diffuse *= intensity * attenuation;
