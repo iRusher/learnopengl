@@ -17,7 +17,7 @@
 #include <iostream>
 #include <imgui_internal.h>
 
-struct CubeContext {
+struct RenderPassInfo {
 
     Shader *lightingShader;
     Shader *lightCubeShader;
@@ -36,7 +36,7 @@ struct CubeContext {
     ImRect rect;
 };
 
-CubeContext *gContext;
+RenderPassInfo *gContext;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -44,7 +44,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 unsigned int loadTexture(const char *path);
-void drawCube(CubeContext *context);
+void drawCube(RenderPassInfo *renderPassInfo);
 
 // settings
 float SCR_WIDTH = 1920.0f;
@@ -223,7 +223,6 @@ int main()
     lightingShader.setInt("material.diffuse",0);
     lightingShader.setInt("material.specular",1);
 
-
 //    Shader *lightingShader;
 //    Shader *lightCubeShader;
 //
@@ -237,7 +236,7 @@ int main()
 //
 //    float *vertices;
 
-    CubeContext context;
+    RenderPassInfo context;
     context.lightingShader = &lightingShader;
     context.lightCubeShader = &lightCubeShader;
     context.cubeVAO = cubeVAO;
@@ -429,7 +428,7 @@ void imguiSetup() {
     ImGui::NewFrame();
 }
 
-void drawCube(CubeContext *context) {
+void drawCube(RenderPassInfo *context) {
 
     GLenum last_active_texture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);

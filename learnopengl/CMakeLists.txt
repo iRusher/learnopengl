@@ -1,4 +1,6 @@
 
+add_subdirectory(learncommon)
+
 add_subdirectory(hello)
 add_subdirectory(triangle)
 add_subdirectory(color)
