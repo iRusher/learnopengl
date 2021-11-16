@@ -275,7 +275,14 @@ int main()
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
+//        glm::mat4 view = camera.GetViewMatrix();
+
+
+        double theta= glfwGetTime() * 100;
+
+        glm::mat4 view = glm::lookAt(glm::vec3(3 *glm::sin(glm::radians(theta)), 3 * glm::cos(glm::radians(theta)) ,3.0f),glm::vec3(0.0,0.0,0.0),glm::vec3(0.0f,1.0f,0.0f));
+
+
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
