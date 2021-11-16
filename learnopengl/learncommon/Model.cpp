@@ -9,7 +9,7 @@
 
 #include "stb_image.h"
 
-unsigned int loadTextureFromFile(const char *path);
+unsigned int loadTextureFromFile(const char *path,const char *director);
 
 void Mesh::setupMesh() {
 
@@ -40,6 +40,12 @@ void Mesh::setupMesh() {
 }
 
 void Mesh::Draw(Shader& shader) {
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->textures[0].id);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, this->textures[1].id);
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
     glBindVertexArray(0);
@@ -51,6 +57,7 @@ void Model::loadModel(std::string &path) {
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
     }
+    directory = path.substr(0,path.find_last_of('/'));
     processNode(scene->mRootNode,scene);
 }
 
@@ -116,16 +123,16 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
-
     std::vector<Texture> textures;
     for (int i = 0; i < mat->GetTextureCount(type); ++i) {
         aiString str;
         mat->GetTexture(type,i,&str);
         Texture texture;
-        texture.id = loadTextureFromFile(str.C_Str());
+        texture.id = loadTextureFromFile(str.C_Str(),directory.c_str());
+        texture.type = typeName;
+        textures.push_back(texture);
     }
-
-    return std::vector<Texture>();
+    return textures;
 }
 
 void Model::Draw(Shader &shader) {
@@ -134,7 +141,7 @@ void Model::Draw(Shader &shader) {
     }
 }
 
-unsigned int loadTextureFromFile(const char *path) {
+unsigned int loadTextureFromFile(const char *path,const char *director) {
     unsigned int texture1;
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
@@ -146,7 +153,12 @@ unsigned int loadTextureFromFile(const char *path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width,height,nrChannels;
-    unsigned char * data = stbi_load(path,&width,&height,&nrChannels,0);
+
+    std::string filename(director);
+    filename = filename + "/" + path;
+    std::cout << filename << std::endl;
+
+    unsigned char * data = stbi_load(filename.c_str(),&width,&height,&nrChannels,0);
     if (!data) {
         std::cout << "Failed to load texture" << std::endl;
     }
@@ -166,7 +178,7 @@ unsigned int loadTextureFromFile(const char *path) {
     }
     else
     {
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout<< "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
 
