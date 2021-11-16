@@ -6,10 +6,12 @@
 #include "shader_m.h"
 #include <glad/glad.h>
 #include <iostream>
+#include <unordered_map>
 
 #include "stb_image.h"
 
-unsigned int loadTextureFromFile(const char *path,const char *director);
+static std::unordered_map<std::string,Texture> textCache;
+unsigned int loadTextureFromFile(std::string fileName);
 
 void Mesh::setupMesh() {
 
@@ -34,7 +36,7 @@ void Mesh::setupMesh() {
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)offsetof(Vertex,normal));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *) offsetof(Vertex,textCoord));
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)offsetof(Vertex,textCoord));
 
     glBindVertexArray(0);
 }
@@ -127,10 +129,20 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     for (int i = 0; i < mat->GetTextureCount(type); ++i) {
         aiString str;
         mat->GetTexture(type,i,&str);
-        Texture texture;
-        texture.id = loadTextureFromFile(str.C_Str(),directory.c_str());
-        texture.type = typeName;
-        textures.push_back(texture);
+
+        std::string filename(directory);
+        filename = filename + "/" + str.C_Str();
+        if (textCache.find(filename) != textCache.end()) {
+            textures.push_back(textCache.find(filename)->second);
+        } else {
+            Texture texture;
+            texture.id = loadTextureFromFile(filename);
+            texture.type = typeName;
+            textures.push_back(texture);
+            texture.path = filename;
+
+            textCache[filename] = texture;
+        }
     }
     return textures;
 }
@@ -141,7 +153,10 @@ void Model::Draw(Shader &shader) {
     }
 }
 
-unsigned int loadTextureFromFile(const char *path,const char *director) {
+unsigned int loadTextureFromFile(std::string fileName) {
+
+    std::cout << fileName << std::endl;
+
     unsigned int texture1;
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
@@ -154,11 +169,7 @@ unsigned int loadTextureFromFile(const char *path,const char *director) {
 
     int width,height,nrChannels;
 
-    std::string filename(director);
-    filename = filename + "/" + path;
-    std::cout << filename << std::endl;
-
-    unsigned char * data = stbi_load(filename.c_str(),&width,&height,&nrChannels,0);
+    unsigned char * data = stbi_load(fileName.c_str(),&width,&height,&nrChannels,0);
     if (!data) {
         std::cout << "Failed to load texture" << std::endl;
     }
