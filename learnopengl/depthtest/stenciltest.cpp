@@ -533,9 +533,17 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     renderPassInfo->lightingShader->use();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 0.5f));
-    renderPassInfo->lightingShader->setMat4("model", model);
+
+    for (int i = 0; i < 10; ++i) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, renderPassInfo->cubePositions[i]);
+        float angle = 20.0f * i;
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+        renderPassInfo->lightingShader->setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+    }
+
     glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -543,12 +551,19 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glDisable(GL_DEPTH_TEST);
 
     renderPassInfo->frameShader->use();
-    model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 0.5f));
-    model = glm::scale(model,glm::vec3(1.1,1.1,1.1));
-    renderPassInfo->frameShader->setMat4("model", model);
-    glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
 
+    float scale = 1.05;
+    for (int i = 0; i < 10; ++i) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, renderPassInfo->cubePositions[i]);
+        float angle = 20.0f * i;
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        model = glm::scale(model,glm::vec3(scale));
+
+        renderPassInfo->frameShader->setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
 
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
