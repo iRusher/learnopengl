@@ -17,6 +17,8 @@
 #include <iostream>
 #include <imgui_internal.h>
 
+#include "Model.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -89,6 +91,9 @@ int main()
     // ------------------------------------
     Shader lightingShader("cube.vs", "cube.fs"); //聚光
     Shader lightCubeShader("light_cube.vs", "light_cube.fs");
+
+    std::string path("cone.obj");
+    Model coneModel(path);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -276,7 +281,8 @@ int main()
 
         glm::mat4 model = glm::mat4(1.0f);
         lightingShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
+//        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
+        coneModel.Draw(lightingShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
