@@ -5,7 +5,11 @@
 #include "Model.h"
 #include "shader_m.h"
 #include <glad/glad.h>
+#include <iostream>
 
+#include "stb_image.h"
+
+unsigned int loadTextureFromFile(const char *path);
 
 void Mesh::setupMesh() {
 
@@ -17,7 +21,9 @@ void Mesh::setupMesh() {
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
 
     glBufferData(GL_ARRAY_BUFFER,vertices.size() * sizeof(Vertex),&vertices[0],GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned  int ),&indices[0],GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned  int),&indices[0],GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)0);
@@ -28,27 +34,141 @@ void Mesh::setupMesh() {
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)offsetof(Vertex,normal));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *) offsetof(Vertex,textCoords));
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *) offsetof(Vertex,textCoord));
 
     glBindVertexArray(0);
 }
 
 void Mesh::Draw(Shader& shader) {
-
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
+    glBindVertexArray(0);
 }
 
-void Model::loadModel() {
-
+void Model::loadModel(std::string &path) {
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(path,aiProcess_Triangulate | aiProcess_FlipUVs);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+    }
+    processNode(scene->mRootNode,scene);
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene) {
+    for (int i = 0; i < node->mNumMeshes; ++i) {
+        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+        meshes.push_back(processMesh(mesh,scene));
+    }
 
+    for (int i = 0; i < node->mNumChildren; ++i) {
+        aiNode *childNode = node->mChildren[i];
+        processNode(childNode,scene);
+    }
 }
 
-void Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture> textures;
+
+    for (int i = 0; i < mesh->mNumVertices; ++i) {
+        Vertex vertex;
+
+        glm::vec3 position;
+        position.x = mesh->mVertices[i].x;
+        position.y = mesh->mVertices[i].y;
+        position.z = mesh->mVertices[i].z;
+        vertex.position = position;
+
+        glm::vec3 normal;
+        normal.x = mesh->mNormals[i].x;
+        normal.y = mesh->mNormals[i].y;
+        normal.z = mesh->mNormals[i].z;
+        vertex.normal = normal;
+
+        glm::vec2 textCoord(1.0f);
+        if (mesh->mTextureCoords[0]) {
+            textCoord.x = mesh->mTextureCoords[0][i].x;
+            textCoord.y = mesh->mTextureCoords[0][i].y;
+        }
+        vertex.textCoord = textCoord;
+
+        vertices.push_back(vertex);
+    }
+
+    for (int i = 0; i < mesh->mNumFaces; ++i) {
+        aiFace face = mesh->mFaces[i];
+        for (int j = 0; j < face.mNumIndices; ++j) {
+            indices.push_back(face.mIndices[j]);
+        }
+    }
+
+    if (mesh->mMaterialIndex >= 0) {
+        aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+        std::vector<Texture> diffuseMaps = loadMaterialTextures(material,aiTextureType_DIFFUSE,"texture_diffuse");
+        textures.insert(textures.end(),diffuseMaps.begin(),diffuseMaps.end());
+        std::vector<Texture> specularMaps = loadMaterialTextures(material,aiTextureType_SPECULAR,"texture_specular");
+        textures.insert(textures.end(),specularMaps.begin(),specularMaps.end());
+    }
+
+    return Mesh(vertices,indices,textures);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
+
+    std::vector<Texture> textures;
+    for (int i = 0; i < mat->GetTextureCount(type); ++i) {
+        aiString str;
+        mat->GetTexture(type,i,&str);
+        Texture texture;
+        texture.id = loadTextureFromFile(str.C_Str());
+    }
+
     return std::vector<Texture>();
+}
+
+void Model::Draw(Shader &shader) {
+    for(Mesh &mesh:meshes) {
+        mesh.Draw(shader);
+    }
+}
+
+unsigned int loadTextureFromFile(const char *path) {
+    unsigned int texture1;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width,height,nrChannels;
+    unsigned char * data = stbi_load(path,&width,&height,&nrChannels,0);
+    if (!data) {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_set_flip_vertically_on_load(true);
+    if (data)
+    {
+        GLint format = GL_RGB;
+        if (nrChannels == 1) {
+            format = GL_RED;
+        } else if (nrChannels == 3) {
+            format = GL_RGB;
+        } else if (nrChannels == 4) {
+            format = GL_RGBA;
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    return texture1;
 }

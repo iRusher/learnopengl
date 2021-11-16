@@ -20,7 +20,7 @@
 struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
-    glm::vec3 textCoords;
+    glm::vec2 textCoord;
 };
 
 struct Texture {
@@ -47,15 +47,17 @@ private:
 
 class Model {
 public:
-    Model(std::string& path){}
-
+    Model(std::string& path){ loadModel(path); }
+    void Draw(Shader& shader);
 private:
     std::vector<Mesh> meshes;
-    void loadModel();
+    void loadModel(std::string& path);
     void processNode(aiNode *node,const aiScene *scene);
-    void processMesh(aiMesh *mesh,const aiScene *scene);
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 
     std::vector<Texture> loadMaterialTextures(aiMaterial *mat,aiTextureType type,std::string typeName);
+
+    std::string directory;
 };
 
 

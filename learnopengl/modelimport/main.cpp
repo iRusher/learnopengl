@@ -17,6 +17,8 @@
 #include <iostream>
 #include <imgui_internal.h>
 
+#include "Model.h"
+
 struct RenderPassInfo {
 
     Shader *lightingShader;
@@ -34,6 +36,7 @@ struct RenderPassInfo {
     unsigned verticesCount;
 
     ImRect rect;
+    Model *model;
 };
 
 RenderPassInfo *gContext;
@@ -107,6 +110,9 @@ int main()
     }
 
     imguiInit(window);
+
+    std::string path = "./nanosuit/nanosuit.obj";
+    Model model(path);
 
     // build and compile our shader zprogram
     // ------------------------------------
@@ -245,6 +251,7 @@ int main()
     context.cubePositions = cubePositions;
     context.vertices = vertices;
     context.verticesCount = sizeof(vertices);
+    context.model = &model;
     gContext = &context;
 
     // render loop
@@ -491,7 +498,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->lightingShader->setFloat("pointLights[3].quadratic", 0.032);
 
     // spotLight
-    lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),0,2);
+    lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),0,3.5f);
     renderPassInfo->lightingShader->setVec3("spotLight.direction", camera.Front);
     renderPassInfo->lightingShader->setVec3("spotLight.position", lightPos);
     renderPassInfo->lightingShader->setVec3("spotLight.ambient", col1[0], col1[1], col1[2]);
@@ -509,7 +516,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->lightingShader->setMat4("projection", projection);
     renderPassInfo->lightingShader->setMat4("view", view);
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 1; i < 10; ++i) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, renderPassInfo->cubePositions[i]);
         float angle = 20.0f * i;
@@ -518,6 +525,12 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         renderPassInfo->lightingShader->setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
     }
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model,glm::vec3(0.0f,-2.0f,0.0f));
+    model = glm::scale(model,glm::vec3(0.2,0.2,0.2));
+    renderPassInfo->lightingShader->setMat4("model", model);
+    renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
 
     // also draw the lamp object
     renderPassInfo->lightCubeShader->use();
