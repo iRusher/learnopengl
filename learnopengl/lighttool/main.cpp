@@ -44,9 +44,6 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-// IMGUI
-void imguiInit(GLFWwindow *window);
-void imguiSetup();
 float col1[3] = { 1.0f, 0.0f, 0.2f };
 
 int main()
@@ -83,8 +80,6 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    imguiInit(window);
 
     // configure global opengl state
     // -----------------------------
@@ -221,26 +216,6 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        imguiSetup();
-
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-//
-        ImGuiContext *context = ImGui::GetCurrentContext();
-        ImVector<ImGuiWindow*> windows = context->Windows;
-        if (windows.size() > 0) {
-            ImGuiWindow *window = windows[windows.size()-1];
-            ImRect rect = window->Rect();
-
-            viewportWidth = rect.GetWidth() * 2;
-            viewportHeight = rect.GetHeight() * 2;
-
-            std::cout << viewportWidth << " " << viewportHeight << std::endl;
-
-            glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
-        }
-
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
         lightingShader.setVec3("viewPos",camera.Position);
@@ -293,52 +268,15 @@ int main()
         lightingShader.setFloat("pointLights[3].linear", 0.09);
         lightingShader.setFloat("pointLights[3].quadratic", 0.032);
 
-        // spotLight
-        lightPos = glm::vec3(glm::sin(glfwGetTime() * 2.0),0,2);
-        lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.position", lightPos);
-        lightingShader.setVec3("spotLight.ambient", col1[0], col1[1], col1[2]);
-        lightingShader.setVec3("spotLight.diffuse", col1[0], col1[1], col1[2]);
-        lightingShader.setVec3("spotLight.specular", col1[0], col1[1], col1[2]);
-        lightingShader.setFloat("spotLight.constant", 1.0f);
-        lightingShader.setFloat("spotLight.linear", 0.09);
-        lightingShader.setFloat("spotLight.quadratic", 0.032);
-        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
-
-        for (int i = 0; i < 10; ++i) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-            lightingShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
-        }
-
-        // also draw the lamp object
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-
-        for (int i = 0; i < pointLightPositions->length(); ++i) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, pointLightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-            lightCubeShader.setMat4("model", model);
-            lightCubeShader.setVec3("LightCubeColor",col1[0],col1[1],col1[2]);
-            glBindVertexArray(lightCubeVAO);
-            glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
-        }
-
-
+        glm::mat4 model = glm::mat4(1.0f);
+        lightingShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -364,7 +302,6 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -390,12 +327,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) return;
+//    if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) return;
 
     if (firstMouse)
     {
@@ -457,30 +393,4 @@ unsigned int loadTexture(const char *path) {
     stbi_image_free(data);
 
     return texture1;
-}
-
-void imguiInit(GLFWwindow *window) {
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    const char* glsl_version = "#version 330";
-    ImGui_ImplOpenGL3_Init(glsl_version);
-};
-
-
-void imguiSetup() {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    static bool showDemo = true;
-    ImGui::ShowDemoWindow(&showDemo);
-
-    ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
-    ImGui::Begin("Light Cube Color");
-    ImGui::ColorEdit3("color 1", col1);
-    ImGui::End();
 }

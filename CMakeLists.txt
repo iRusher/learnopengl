@@ -23,4 +23,7 @@ include_directories(assimp/include)
 #imgui
 add_subdirectory(imgui)
 
+#imgui-docking
+add_subdirectory(imgui-docking)
+
 add_subdirectory(learnopengl)
