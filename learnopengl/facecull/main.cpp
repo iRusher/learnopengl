@@ -431,6 +431,9 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
