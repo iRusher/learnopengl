@@ -92,7 +92,8 @@ int main()
     Shader lightingShader("cube.vs", "cube.fs"); //聚光
     Shader lightCubeShader("light_cube.vs", "light_cube.fs");
 
-    std::string path("cone.obj");
+    std::string path("./earth/untitled.obj");
+//    std::string path("cone.obj");
     Model coneModel(path);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -275,12 +276,7 @@ int main()
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
-//        glm::mat4 view = camera.GetViewMatrix();
-
-
-        double theta= glfwGetTime() * 100;
-
-        glm::mat4 view = glm::lookAt(glm::vec3(3 *glm::sin(glm::radians(theta)), 3 * glm::cos(glm::radians(theta)) ,3.0f),glm::vec3(0.0,0.0,0.0),glm::vec3(0.0f,1.0f,0.0f));
+        glm::mat4 view = camera.GetViewMatrix();
 
 
         lightingShader.setMat4("projection", projection);
