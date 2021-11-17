@@ -289,11 +289,11 @@ int main()
         }, nullptr);
         currentImgWindow->DrawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
         ImGui::End();
-
         ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
         ImGui::Begin("Light Cube Color");
         ImGui::ColorEdit3("color 1", col1);
         ImGui::End();
+
 
         // Rendering
         ImGui::Render();
