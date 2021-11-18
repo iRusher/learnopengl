@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -19,21 +21,33 @@
 
 #include "Model.h"
 
+#include "glcheck.h"
+
 struct RenderPassInfo {
 
     Shader *lightingShader;
-    Shader *lightCubeShader;
-
     unsigned int cubeVAO;
-    unsigned int lightCubeVAO;
     unsigned int texture1;
     unsigned int texture2;
+
+    Shader *lightCubeShader;
+    unsigned int lightCubeVAO;
 
     glm::vec3 *pointLightPositions;
     glm::vec3 *cubePositions;
 
     float *vertices;
-    unsigned verticesCount;
+    unsigned int verticesCount;
+
+    unsigned int quadVAO;
+    float *quadVertices;
+    unsigned int quadCnt;
+    Shader *quadShader;
+
+    unsigned int FBO;
+    unsigned int RBO;
+    unsigned int fTexture;
+
 
     ImRect rect;
     Model *model;
@@ -53,8 +67,8 @@ void drawCube(RenderPassInfo *renderPassInfo);
 float SCR_WIDTH = 1920.0f;
 float SCR_HEIGHT = 1080.0f;
 
-float viewportWidth = 1920.0f;
-float viewportHeight = 1080.0f;
+float viewportWidth = 818.0f;
+float viewportHeight = 750.0f;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -118,6 +132,7 @@ int main()
     // ------------------------------------
     Shader lightingShader("cube.vs", "cube.fs"); //聚光
     Shader lightCubeShader("light_cube.vs", "light_cube.fs");
+    Shader quadShader("quad.vs", "quad.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -187,6 +202,17 @@ int main()
             glm::vec3( 0.0f,  0.0f, -3.0f)
     };
 
+    float quadVertices[] = {
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f
+    };
+
     // first, configure the cube's VAO (and VBO)
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
@@ -219,25 +245,54 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
+
+    unsigned int quadVBO,quadVAO;
+    glGenVertexArrays(1,&quadVAO);
+    glGenBuffers(1,&quadVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER,quadVBO);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(quadVertices),quadVertices,GL_STATIC_DRAW);
+
+    glBindVertexArray(quadVAO);
+    glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,4 *sizeof(float),(void *)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,4 *sizeof(float), (void *)(sizeof(float) * 2));
+    glEnableVertexAttribArray(1);
+
+
+    // 创建framebuffer
+    unsigned int FBO;
+    glGenFramebuffers(1,&FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER,FBO);
+
+    unsigned int fTexture;
+    glGenTextures(1,&fTexture);
+    glBindTexture(GL_TEXTURE_2D,fTexture);
+
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewportWidth,viewportHeight,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,fTexture,0);
+
+    unsigned int RBO;
+    glGenRenderbuffers(1,&RBO);
+    glBindRenderbuffer(GL_RENDERBUFFER,RBO);
+    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportWidth,viewportHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "framebuffer is not complete" << std::endl;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     unsigned int texture1 = loadTexture("container.png");
     unsigned int texture2 = loadTexture("container2_specular.png");
 
     lightingShader.use();
     lightingShader.setInt("material.diffuse",0);
     lightingShader.setInt("material.specular",1);
-
-//    Shader *lightingShader;
-//    Shader *lightCubeShader;
-//
-//    unsigned int cubeVAO;
-//    unsigned int lightCubeVAO;
-//    unsigned int texture1;
-//    unsigned int texture2;
-//
-//    glm::vec3 *pointLightPositions;
-//    glm::vec3 *cubePositions;
-//
-//    float *vertices;
+    
 
     RenderPassInfo context;
     context.lightingShader = &lightingShader;
@@ -251,6 +306,17 @@ int main()
     context.vertices = vertices;
     context.verticesCount = sizeof(vertices);
     context.model = &model;
+
+    context.quadVAO = quadVAO;
+    context.quadVertices = quadVertices;
+    context.quadCnt = sizeof(quadVertices);
+    context.quadShader = &quadShader;
+
+    context.FBO = FBO;
+    context.RBO = RBO;
+    context.fTexture = fTexture;
+
+
     gContext = &context;
 
     // render loop
@@ -293,7 +359,6 @@ int main()
         ImGui::ColorEdit3("color 1", col1);
         ImGui::End();
 
-
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -301,7 +366,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
@@ -441,7 +505,11 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     ImRect rect = renderPassInfo->rect;
     viewportWidth = rect.GetWidth() * 2;
     viewportHeight = rect.GetHeight() * 2;
-    glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
+
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER,renderPassInfo->FBO));
+    glViewport(0,0,viewportWidth,viewportHeight);
+
+//    glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -522,7 +590,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
         renderPassInfo->lightingShader->setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -543,9 +611,19 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         renderPassInfo->lightCubeShader->setMat4("model", model);
         renderPassInfo->lightCubeShader->setVec3("LightCubeColor", col1[0], col1[1], col1[2]);
         glBindVertexArray(renderPassInfo->lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderPassInfo->quadShader->use();
+    glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
+    glBindVertexArray(renderPassInfo->quadVAO);
+    glBindTexture(GL_TEXTURE_2D,renderPassInfo->fTexture);
+    GL_CHECK(glDrawArrays(GL_TRIANGLES,0,6));
+
+    glEnable(GL_DEPTH_TEST);
     glActiveTexture(last_active_texture);
 }
 

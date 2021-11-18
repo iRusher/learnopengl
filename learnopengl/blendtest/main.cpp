@@ -462,7 +462,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,renderPassInfo->windowPositions[i]);
         renderPassInfo->windowShader->setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->winVerticesCnt);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     glActiveTexture(last_active_texture);

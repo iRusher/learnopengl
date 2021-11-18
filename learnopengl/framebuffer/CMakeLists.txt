@@ -7,6 +7,9 @@ configure_file(light_cube.vs light_cube.vs COPYONLY)
 configure_file(container.png container.png COPYONLY)
 configure_file(container2_specular.png container2_specular.png COPYONLY)
 
+configure_file(quad.vs quad.vs COPYONLY)
+configure_file(quad.fs quad.fs COPYONLY)
+
 add_executable(learn_framebuffer main.cpp)
 
 target_link_libraries(learn_framebuffer glfw)

@@ -13,10 +13,10 @@
 void process_input(GLFWwindow *window);
 
 const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "layout (location = 0) in vec2 aPos;\n"
                                  "void main()\n"
                                  "{\n"
-                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                 "   gl_Position = vec4(aPos.x, aPos.y, 1, 1.0);\n"
                                  "}\0";
 const char *fragmentShaderSource = "#version 330 core\n"
                                    "out vec4 FragColor;\n"
@@ -59,10 +59,21 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
 
+//    float verties[] = {
+//            -0.5f, -0.5f, 0.0f, // left
+//            0.5f, -0.5f, 0.0f, // right
+//            0.0f,  0.5f, 0.0f  // top
+//    };
+
     float verties[] = {
-            -0.5f, -0.5f, 0.0f, // left
-            0.5f, -0.5f, 0.0f, // right
-            0.0f,  0.5f, 0.0f  // top
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f
     };
 
     // build and compile our shader program
@@ -113,8 +124,11 @@ int main(int argc, const char * argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(verties), verties ,GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(float ) * 3, (void *)0);
+    glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE, sizeof(float ) * 4, (void *)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, sizeof(float ) * 4, (void *)2);
+    glEnableVertexAttribArray(1);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
