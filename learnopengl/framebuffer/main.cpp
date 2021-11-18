@@ -67,8 +67,8 @@ void drawCube(RenderPassInfo *renderPassInfo);
 float SCR_WIDTH = 1920.0f;
 float SCR_HEIGHT = 1080.0f;
 
-float viewportWidth = 818.0f;
-float viewportHeight = 750.0f;
+float viewportWidth = 818;
+float viewportHeight = 703;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -110,6 +110,9 @@ int main()
         glfwTerminate();
         return -1;
     }
+
+    std::cout << "window size : " << SCR_WIDTH << "," << SCR_HEIGHT << std::endl;
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -260,6 +263,8 @@ int main()
     glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,4 *sizeof(float), (void *)(sizeof(float) * 2));
     glEnableVertexAttribArray(1);
 
+    std::cout << "init vierport size : " << viewportWidth << "," << viewportHeight << std::endl;
+    std::cout << "framebuffer texture size : " << viewportWidth  << "," << viewportHeight << std::endl;
 
     // 创建framebuffer
     unsigned int FBO;
@@ -270,7 +275,7 @@ int main()
     glGenTextures(1,&fTexture);
     glBindTexture(GL_TEXTURE_2D,fTexture);
 
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewportWidth * 2,viewportHeight*2,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewportWidth * 2,viewportHeight * 2,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,fTexture,0);
@@ -278,7 +283,7 @@ int main()
     unsigned int RBO;
     glGenRenderbuffers(1,&RBO);
     glBindRenderbuffer(GL_RENDERBUFFER,RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportWidth*2,viewportHeight*2);
+    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportWidth * 2,viewportHeight * 2);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
@@ -408,6 +413,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     SCR_WIDTH = width;
     SCR_HEIGHT = height;
     glViewport(0, 0, width, height);
+
+    std::cout << "framebuffer callback size : " << width << "," << height << std::endl;
+
 }
 
 
@@ -502,30 +510,47 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     GLenum last_active_texture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
 
+    static float viewportWidthS = 0;
+    static float viewportHeightS = 0;
+    static ImRect rectS;
+
     ImRect rect = renderPassInfo->rect;
-    viewportWidth = rect.GetWidth() * 2;
-    viewportHeight = rect.GetHeight() * 2;
+    viewportWidth = rect.GetWidth();
+    viewportHeight = rect.GetHeight();
+
+    if ( (viewportWidthS != viewportWidth)
+        || viewportHeightS != viewportHeight
+        || rectS.Min.x != rect.Min.x
+        || rectS.Min.y != rect.Min.y
+        || rectS.Max.x != rect.Max.x
+        || rectS.Max.y != rect.Max.y ) {
+        rectS = rect;
+        viewportWidthS = viewportWidth;
+        viewportHeightS = viewportHeight;
+        std::cout << "render view size : " << viewportWidth << "," << viewportHeight << std::endl;
+        std::cout << "rect " << rect.Max.x << "," << rect.Max.y << ";" << rect.Min.x << "," << rect.Min.y << std::endl;
+        std::cout << "rectS " << rectS.Max.x << "," << rectS.Max.y << ";" << rectS.Min.x << "," << rectS.Min.y << std::endl;
+        std::cout << "render view position " << rect.Min.x * 2 << "," << SCR_HEIGHT - rect.Max.y << ";" << viewportWidth << "," << viewportHeight << std::endl;
+    }
 
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER,renderPassInfo->FBO));
-    glViewport(0,0,viewportWidth,viewportHeight);
-
-//    glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
-
-
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glViewport(0,0 ,viewportWidth*2,viewportHeight*2);
 
+
+//    glViewport(rect.Min.x * 2, (SCR_HEIGHT - rect.Max.y) * 2 ,viewportWidth*2,viewportHeight*2);
     renderPassInfo->lightingShader->use();
     renderPassInfo->lightingShader->setVec3("viewPos", camera.Position);
 
     // material
     renderPassInfo->lightingShader->setFloat("material.shininess", 32.0);
     glBindVertexArray(renderPassInfo->cubeVAO);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, renderPassInfo->texture1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, renderPassInfo->texture2);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, renderPassInfo->texture1);
+//    glActiveTexture(GL_TEXTURE1);
+//    glBindTexture(GL_TEXTURE_2D, renderPassInfo->texture2);
 
     // lights
     // direction light
@@ -617,17 +642,18 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER,0);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
     renderPassInfo->quadShader->use();
-    glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
+    glViewport(rect.Min.x * 2, (SCR_HEIGHT - rect.Max.y) * 2 ,viewportWidth*2,viewportHeight*2);
+
     glBindVertexArray(renderPassInfo->quadVAO);
     glBindTexture(GL_TEXTURE_2D,renderPassInfo->fTexture);
-    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     GL_CHECK(glDrawArrays(GL_TRIANGLES,0,6));
-
-    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
     glEnable(GL_DEPTH_TEST);
     glActiveTexture(last_active_texture);

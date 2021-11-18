@@ -43,10 +43,10 @@ void Mesh::setupMesh() {
 
 void Mesh::Draw(Shader& shader) {
 
-    for (int i = 0; i < this->textures.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
-    }
+//    for (int i = 0; i < this->textures.size(); i++) {
+//        glActiveTexture(GL_TEXTURE0 + i);
+//        glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+//    }
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
@@ -155,7 +155,7 @@ void Model::Draw(Shader &shader) {
 
 unsigned int loadTextureFromFile(std::string fileName) {
 
-    std::cout << fileName << std::endl;
+//    std::cout << fileName << std::endl;
 
     unsigned int texture1;
     glGenTextures(1, &texture1);
