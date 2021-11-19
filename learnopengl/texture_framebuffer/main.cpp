@@ -275,8 +275,9 @@ int main()
 
         // render
         // ------
+        glViewport(0,0,SCR_WIDTH * 2,SCR_HEIGHT*2);
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER,FBO));
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(1.0,0.0,0.0,1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
@@ -308,6 +309,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
 
+        glViewport(50,50,400*2,300*2);
         quadShader.use();
 
         glBindVertexArray(quadVAO);

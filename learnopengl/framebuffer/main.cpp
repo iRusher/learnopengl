@@ -291,12 +291,15 @@ int main()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    unsigned int texture1 = loadTexture("container.png");
-    unsigned int texture2 = loadTexture("container2_specular.png");
+    unsigned int texture1;
+    unsigned int texture2;
 
-    lightingShader.use();
-    lightingShader.setInt("material.diffuse",0);
-    lightingShader.setInt("material.specular",1);
+//    unsigned int texture1 = loadTexture("container.png");
+//    unsigned int texture2 = loadTexture("container2_specular.png");
+//
+//    lightingShader.use();
+//    lightingShader.setInt("material.diffuse",0);
+//    lightingShader.setInt("material.specular",1);
 
 
     RenderPassInfo context;
@@ -355,10 +358,16 @@ int main()
         ImRect rect = currentImgWindow->Rect();
         gContext->rect = rect;
         currentImgWindow->DrawList->AddCallback([](const ImDrawList* parent_list, const ImDrawCmd* cmd){
+            GLint vp[4];
+            glGetIntegerv(GL_VIEWPORT, vp);
+            std::cout << "in imgui view port 1 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
             drawCube(gContext);
+            glGetIntegerv(GL_VIEWPORT, vp);
+            std::cout << "in imgui view port 2 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
         }, nullptr);
         currentImgWindow->DrawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
         ImGui::End();
+
         ImGui::SetNextWindowSize(ImVec2(278,55),ImGuiCond_FirstUseEver);
         ImGui::Begin("Light Cube Color");
         ImGui::ColorEdit3("color 1", col1);
@@ -509,7 +518,11 @@ void drawCube(RenderPassInfo *renderPassInfo) {
 
     GLenum last_active_texture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
+    glDisable(GL_SCISSOR_TEST);
 
+    GLint sc[4];
+    glGetIntegerv(GL_SCISSOR_BOX,sc);
+//    std::cout << "sc" << sc[0] << "," << sc[1]  << "," << sc[2] << "," <<sc[3] <<  std::endl;
     static float viewportWidthS = 0;
     static float viewportHeightS = 0;
     static ImRect rectS;
@@ -533,11 +546,18 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         std::cout << "render view position " << rect.Min.x * 2 << "," << SCR_HEIGHT - rect.Max.y << ";" << viewportWidth << "," << viewportHeight << std::endl;
     }
 
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+    std::cout << "view port 1 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
+
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER,renderPassInfo->FBO));
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0 ,viewportWidth*2,viewportHeight*2);
+
+    glGetIntegerv(GL_VIEWPORT, vp);
+    std::cout << "view port 2 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
 
 
 //    glViewport(rect.Min.x * 2, (SCR_HEIGHT - rect.Max.y) * 2 ,viewportWidth*2,viewportHeight*2);
@@ -611,50 +631,62 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->lightingShader->setMat4("projection", projection);
     renderPassInfo->lightingShader->setMat4("view", view);
 
-    for (int i = 1; i < 10; ++i) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, renderPassInfo->cubePositions[i]);
-        float angle = 20.0f * i;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        renderPassInfo->lightingShader->setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
-    }
-
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model,glm::vec3(0.0f,-2.0f,0.0f));
-    model = glm::scale(model,glm::vec3(0.2,0.2,0.2));
     renderPassInfo->lightingShader->setMat4("model", model);
-    renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
+    glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
 
-    // also draw the lamp object
-    renderPassInfo->lightCubeShader->use();
-    renderPassInfo->lightCubeShader->setMat4("projection", projection);
-    renderPassInfo->lightCubeShader->setMat4("view", view);
+//    for (int i = 1; i < 10; ++i) {
+//        glm::mat4 model = glm::mat4(1.0f);
+//        model = glm::translate(model, renderPassInfo->cubePositions[i]);
+//        float angle = 20.0f * i;
+//        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+//        renderPassInfo->lightingShader->setMat4("model", model);
+//        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+//    }
+//
+//    glm::mat4 model = glm::mat4(1.0f);
+//    model = glm::translate(model,glm::vec3(0.0f,-2.0f,0.0f));
+//    model = glm::scale(model,glm::vec3(0.2,0.2,0.2));
+//    renderPassInfo->lightingShader->setMat4("model", model);
+//    renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
+//
+//    // also draw the lamp object
+//    renderPassInfo->lightCubeShader->use();
+//    renderPassInfo->lightCubeShader->setMat4("projection", projection);
+//    renderPassInfo->lightCubeShader->setMat4("view", view);
+//
+//    for (int i = 0; i < renderPassInfo->pointLightPositions->length(); ++i) {
+//        glm::mat4 model = glm::mat4(1.0f);
+//        model = glm::translate(model, renderPassInfo->pointLightPositions[i]);
+//        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+//        renderPassInfo->lightCubeShader->setMat4("model", model);
+//        renderPassInfo->lightCubeShader->setVec3("LightCubeColor", col1[0], col1[1], col1[2]);
+//        glBindVertexArray(renderPassInfo->lightCubeVAO);
+//        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
+//    }
 
-    for (int i = 0; i < renderPassInfo->pointLightPositions->length(); ++i) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, renderPassInfo->pointLightPositions[i]);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        renderPassInfo->lightCubeShader->setMat4("model", model);
-        renderPassInfo->lightCubeShader->setVec3("LightCubeColor", col1[0], col1[1], col1[2]);
-        glBindVertexArray(renderPassInfo->lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
-    }
+    glGetIntegerv(GL_VIEWPORT, vp);
+    std::cout << "view port 3 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
 
     glBindFramebuffer(GL_FRAMEBUFFER,0);
-
+    glEnable(GL_SCISSOR_TEST);
+    glViewport(rect.Min.x * 2, (SCR_HEIGHT - rect.Max.y) * 2 ,viewportWidth*2,viewportHeight*2);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     renderPassInfo->quadShader->use();
-    glViewport(rect.Min.x * 2, (SCR_HEIGHT - rect.Max.y) * 2 ,viewportWidth*2,viewportHeight*2);
-
     glBindVertexArray(renderPassInfo->quadVAO);
     glBindTexture(GL_TEXTURE_2D,renderPassInfo->fTexture);
 //    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glGetIntegerv(GL_VIEWPORT, vp);
+    std::cout << "view port 4 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
     GL_CHECK(glDrawArrays(GL_TRIANGLES,0,6));
 //    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
+    glGetIntegerv(GL_VIEWPORT, vp);
+    std::cout << "view port 5 " << vp[0] << "," << vp[1]  << "," << vp[2] << "," <<vp[3] <<  std::endl;
+
+//    glEnable(GL_SCISSOR_TEST);
     glEnable(GL_DEPTH_TEST);
     glActiveTexture(last_active_texture);
 }
