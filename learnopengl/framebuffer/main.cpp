@@ -47,7 +47,7 @@ struct RenderPassInfo {
     unsigned int FBO;
     unsigned int RBO;
     unsigned int fTexture;
-
+    unsigned int fDepthTxt;
 
     ImRect rect;
     Model *model;
@@ -274,17 +274,24 @@ int main()
     unsigned int fTexture;
     glGenTextures(1,&fTexture);
     glBindTexture(GL_TEXTURE_2D,fTexture);
-
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewportWidth * 2,viewportHeight * 2,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,fTexture,0);
 
+    unsigned int fDepthTxt;
+    glGenTextures(1,&fDepthTxt);
+    glBindTexture(GL_TEXTURE_2D,fDepthTxt);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,viewportWidth * 2,viewportHeight * 2,0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,fDepthTxt,0);
+
     unsigned int RBO;
-    glGenRenderbuffers(1,&RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER,RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportWidth * 2,viewportHeight * 2);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
+//    glGenRenderbuffers(1,&RBO);
+//    glBindRenderbuffer(GL_RENDERBUFFER,RBO);
+//    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportWidth * 2,viewportHeight * 2);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,RBO);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "framebuffer is not complete" << std::endl;
@@ -319,6 +326,7 @@ int main()
     context.FBO = FBO;
     context.RBO = RBO;
     context.fTexture = fTexture;
+    context.fDepthTxt = fDepthTxt;
 
 
     gContext = &context;
@@ -653,7 +661,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->quadShader->use();
     glBindVertexArray(renderPassInfo->quadVAO);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,renderPassInfo->fTexture);
+    glBindTexture(GL_TEXTURE_2D,renderPassInfo->fDepthTxt);
 //    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     GL_CHECK(glDrawArrays(GL_TRIANGLES,0,6));
 //    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
