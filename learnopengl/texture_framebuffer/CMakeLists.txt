@@ -9,7 +9,7 @@ configure_file(quad.fs quad.fs COPYONLY)
 configure_file(quad.vs quad.vs COPYONLY)
 
 include_directories(../include)
-add_executable(learn_texture2 main.cpp)
+add_executable(learn_texture_fbo main.cpp)
 
-target_link_libraries(learn_texture2 glfw)
-target_link_libraries(learn_texture2 glad)
+target_link_libraries(learn_texture_fbo glfw)
+target_link_libraries(learn_texture_fbo glad)

@@ -257,7 +257,7 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     quadShader.use();
-    quadShader.setInt("texture0",0);
+//    quadShader.setInt("texture0",GL_TEXTURE3);
 
     // render loop
     // -----------
@@ -283,8 +283,8 @@ int main()
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
-//        glActiveTexture(GL_TEXTURE1);
-//        glBindTexture(GL_TEXTURE_2D, texture2);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
@@ -313,6 +313,7 @@ int main()
         quadShader.use();
 
         glBindVertexArray(quadVAO);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,fTexture);
         glDrawArrays(GL_TRIANGLES,0,6);
 
