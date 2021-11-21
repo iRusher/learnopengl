@@ -12,3 +12,5 @@ target_link_libraries(learn_camera glfw)
 target_link_libraries(learn_camera glad)
 target_link_libraries(learn_camera imgui)
 target_link_libraries(learn_camera imguizmo)
+
+add_executable(learn_glm glmtest.cpp)
