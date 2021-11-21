@@ -26,4 +26,7 @@ add_subdirectory(imgui)
 #imgui-docking
 add_subdirectory(imgui-docking)
 
+#imgui-gizmo
+add_subdirectory(imgui-gizmo)
+
 add_subdirectory(learnopengl)

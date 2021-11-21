@@ -24,4 +24,8 @@
 ![pipeline](./doc/faceculling_2.png)
 ![pipeline](./doc/faceculling_3.png)
 
+## Stencil Test 模版测试
+    
+模版测试输出是模版缓冲(stencil buffer)和一个固定值的比较结果。
+
 ## Framebuffer 帧缓冲
