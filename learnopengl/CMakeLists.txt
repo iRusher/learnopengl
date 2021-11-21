@@ -1,6 +1,8 @@
 
 add_subdirectory(learncommon)
 
+add_subdirectory(simplepipeline)
+
 add_subdirectory(hello)
 add_subdirectory(triangle)
 add_subdirectory(color)
