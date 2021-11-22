@@ -654,7 +654,6 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0 ,viewportWidth*2,viewportHeight*2);
 
-
     renderPassInfo->lightingShader->use();
     renderPassInfo->lightingShader->setVec3("viewPos", camera.Position);
 
@@ -739,8 +738,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->lightingShader->use();
     renderPassInfo->lightingShader->setMat4("projection", projection);
     renderPassInfo->lightingShader->setMat4("view", view);
-
-    model = glm::mat4(1.0f);
+    glBindVertexArray(renderPassInfo->cubeVAO);
     for (int i = 1; i < 10; ++i) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, renderPassInfo->cubePositions[i]);
@@ -750,13 +748,13 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
     }
 
+    // nanosuit
     model = glm::mat4(1.0f);
     model = glm::translate(model,glm::vec3(0.0f,-2.0f,0.0f));
     model = glm::scale(model,glm::vec3(0.2,0.2,0.2));
     renderPassInfo->lightingShader->setMat4("model", model);
     renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
 
-    // also draw the lamp object
     renderPassInfo->lightCubeShader->use();
     renderPassInfo->lightCubeShader->setMat4("projection", projection);
     renderPassInfo->lightCubeShader->setMat4("view", view);
