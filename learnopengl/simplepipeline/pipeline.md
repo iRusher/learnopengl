@@ -32,5 +32,14 @@ while(!exitFlag) {
 
 ```
 
+初步设计为：
 
+```cpp
+
+App app;
+Device device;
+
+
+
+```
 
