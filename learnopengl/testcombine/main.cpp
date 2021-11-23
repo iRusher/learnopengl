@@ -36,7 +36,8 @@ struct RenderPassInfo {
     float *vertices;
     unsigned verticesCount;
 
-    ImRect rect;
+    ImRect pass0Rect;
+    ImRect pass1Rect;
     Model *model;
 
 };
@@ -49,7 +50,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 unsigned int loadTexture(const char *path);
-void drawCube(RenderPassInfo *renderPassInfo);
+void drawCube(RenderPassInfo *renderPassInfo,int pass);
 
 // settings
 float SCR_WIDTH = 1920.0f;
@@ -81,12 +82,16 @@ struct TestWindwow {
     bool _windowClose;
 };
 
-std::vector<TestWindwow *> testWindows;
 
+const char* depthFuncs[] = {"NERVER", "LESS", "GREATER", "EQUAL", "ALWAYS", "LEQUAL", "GEQUAL", "NOTEQUAL"};
+const char* stencilFuncs[] = {"NERVER", "LESS", "GREATER", "EQUAL", "ALWAYS", "LEQUAL", "GEQUAL", "NOTEQUAL"};
+const char* stencilOpFuncs[] = {"KEEP", "ZERO", "INCR", "DECR", "INVERT", "REPLACE", "INC_WRAP", "DECR_WRAP"};
+
+std::vector<TestWindwow *> testWindows;
 void addNewWindow(){
     TestWindwow *window = new TestWindwow;
     size_t count = testWindows.size();
-    std::string title = "TEST"+ std::to_string(count);
+    std::string title = "DepthStencilState"+ std::to_string(count);
     window->_title = title;
     window->_windowClose = false;
     testWindows.push_back(window);
@@ -269,17 +274,29 @@ int main()
 
         imguiSetup();
 
-//        static bool showDemo = true;
-//        if (showDemo) ImGui::ShowDemoWindow(&showDemo);
+        static bool showDemo = true;
+        if (showDemo) ImGui::ShowDemoWindow(&showDemo);
 
         ImGui::SetNextWindowSize(ImVec2(414 * 2,375 * 2),ImGuiCond_FirstUseEver);
         ImGui::Begin("RenderViewer");
         ImGui::Text("Test");//至少要添加一个widget，不然不会渲染window
         ImGuiWindow *currentImgWindow = ImGui::GetCurrentContext()->CurrentWindow;
         ImRect rect = currentImgWindow->Rect();
-        gContext->rect = rect;
+        gContext->pass0Rect = rect;
         currentImgWindow->DrawList->AddCallback([](const ImDrawList* parent_list, const ImDrawCmd* cmd){
-            drawCube(gContext);
+            drawCube(gContext,0);
+        }, nullptr);
+        currentImgWindow->DrawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
+        ImGui::End();
+
+        ImGui::SetNextWindowSize(ImVec2(414 * 2,375 * 2),ImGuiCond_FirstUseEver);
+        ImGui::Begin("RenderViewer2");
+        ImGui::Text("Test");//至少要添加一个widget，不然不会渲染window
+        currentImgWindow = ImGui::GetCurrentContext()->CurrentWindow;
+        rect = currentImgWindow->Rect();
+        gContext->pass1Rect = rect;
+        currentImgWindow->DrawList->AddCallback([](const ImDrawList* parent_list, const ImDrawCmd* cmd){
+            drawCube(gContext,1);
         }, nullptr);
         currentImgWindow->DrawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
         ImGui::End();
@@ -290,10 +307,57 @@ int main()
         if(ImGui::Button("New Test")) addNewWindow();
         ImGui::End();
 
+        static bool vDepthTest;
+        static bool vDepthWrite;
+        static int vDepthFunc;
+
+        static bool vStencilTestFront;
+        static int vStencilTestFrontFunc;
+        static int vStencilReadMaskFront = 0xFF;
+        static int vStencilWriteMaskFront = 0xFF;
+        static int vStencilFailOpFuncFront = 0;//default=KEEP
+        static int vStencilZFailOpFuncFront = 0;//default=KEEP
+        static int vStencilPassOpFuncFront = 0;//default=KEEP
+        static int vStencilRefFront = 1;
+
+        static bool vStencilTestBack;
+        static int vStencilTestBackFunc;
+        static int vStencilReadMaskBack = 0xFF;
+        static int vStencilWriteMaskBack = 0xFF;
+        static int vStencilFailOpFuncBack = 0;//default=KEEP
+        static int vStencilZFailOpFuncBack = 0;//default=KEEP
+        static int vStencilPassOpFuncBack = 0;//default=KEEP
+        static int vStencilRefBack = 1;
 
         for (TestWindwow *w : testWindows) {
-            ImGui::SetNextWindowSize(ImVec2(200,100),ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(434,504),ImGuiCond_FirstUseEver);
             ImGui::Begin(w->_title.c_str());
+            ImGui::Text("Depth");
+            ImGui::Checkbox("DepthTest", &vDepthTest);
+            ImGui::Checkbox("DepthWrite", &vDepthWrite);
+            ImGui::Combo("DepthFunc", &vDepthFunc, depthFuncs, IM_ARRAYSIZE(depthFuncs));
+
+            ImGui::Separator();
+
+            ImGui::Text("Stencil");
+            ImGui::Checkbox("StencilTestFront",&vStencilTestFront);
+            ImGui::Combo("StencilFunc", &vStencilTestFrontFunc, stencilFuncs, IM_ARRAYSIZE(stencilFuncs));
+            ImGui::InputScalar("ReadMaskFront",ImGuiDataType_S32,&vStencilReadMaskFront,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+            ImGui::InputScalar("WriteMaskFront",ImGuiDataType_S32,&vStencilWriteMaskFront,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+            ImGui::Combo("StencilFailOpFront", &vStencilFailOpFuncFront, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::Combo("StencilZFailOpFront", &vStencilZFailOpFuncFront, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::Combo("StencilPassOpFront", &vStencilPassOpFuncFront, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::InputScalar("StencilRefFront",ImGuiDataType_S32,&vStencilRefFront,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+
+            ImGui::Checkbox("StencilTestBack",&vStencilTestBack);
+            ImGui::Combo("StencilFuncBack", &vStencilTestBackFunc, stencilFuncs, IM_ARRAYSIZE(stencilFuncs));
+            ImGui::InputScalar("ReadMaskBack",ImGuiDataType_S32,&vStencilReadMaskBack,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+            ImGui::InputScalar("WriteMaskBack",ImGuiDataType_S32,&vStencilWriteMaskBack,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+            ImGui::Combo("StencilFailOpBack", &vStencilFailOpFuncBack, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::Combo("StencilZFailOpBack", &vStencilZFailOpFuncBack, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::Combo("StencilPassOpBack", &vStencilPassOpFuncBack, stencilOpFuncs, IM_ARRAYSIZE(stencilOpFuncs));
+            ImGui::InputScalar("StencilRefBack",ImGuiDataType_S32,&vStencilRefBack,NULL,NULL,"%08X",ImGuiInputTextFlags_CharsHexadecimal);
+
             ImGui::End();
         }
 
@@ -420,12 +484,12 @@ void imguiSetup() {
     ImGui::NewFrame();
 }
 
-void drawCube(RenderPassInfo *renderPassInfo) {
+void drawCube(RenderPassInfo *renderPassInfo,int pass) {
 
     GLenum last_active_texture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
 
-    ImRect rect = renderPassInfo->rect;
+    ImRect rect = pass == 0 ? renderPassInfo->pass0Rect : renderPassInfo->pass1Rect;
     viewportWidth = rect.GetWidth() * 2;
     viewportHeight = rect.GetHeight() * 2;
     glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
