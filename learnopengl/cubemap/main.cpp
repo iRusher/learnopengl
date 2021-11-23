@@ -724,18 +724,6 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
     glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
-    glDepthMask(GL_FALSE);
-    renderPassInfo->skyboxShader->use();
-    renderPassInfo->skyboxShader->setMat4("projection", projection);
-    renderPassInfo->skyboxShader->setMat4("view", view);
-    renderPassInfo->skyboxShader->setMat4("model", model);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP,renderPassInfo->skyboxTexture);
-    glBindVertexArray(renderPassInfo->skyboxVAO);
-    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36));
-    glDepthMask(GL_TRUE);
-
     view = camera.GetViewMatrix();
     renderPassInfo->lightingShader->use();
     renderPassInfo->lightingShader->setMat4("projection", projection);
@@ -757,7 +745,6 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     renderPassInfo->lightingShader->setMat4("model", model);
     renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
 
-
     renderPassInfo->lightCubeShader->use();
     renderPassInfo->lightCubeShader->setMat4("projection", projection);
     renderPassInfo->lightCubeShader->setMat4("view", view);
@@ -771,6 +758,23 @@ void drawCube(RenderPassInfo *renderPassInfo) {
         glBindVertexArray(renderPassInfo->lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
     }
+
+//    glDepthMask(GL_FALSE);
+    model = glm::mat4(1.0);
+
+    glDepthFunc(GL_LEQUAL);
+    view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+    renderPassInfo->skyboxShader->use();
+    renderPassInfo->skyboxShader->setMat4("projection", projection);
+    renderPassInfo->skyboxShader->setMat4("view", view);
+    renderPassInfo->skyboxShader->setMat4("model", model);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP,renderPassInfo->skyboxTexture);
+    glBindVertexArray(renderPassInfo->skyboxVAO);
+    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36));
+//    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 
     glBindFramebuffer(GL_FRAMEBUFFER,0);
 
