@@ -243,7 +243,7 @@ int main()
         "top.jpg",
         "bottom.jpg",
         "front.jpg",
-        "back.jpg"
+        "back.jpg",
     };
 
     glm::vec3 cubePositions[] = {
@@ -316,6 +316,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER,skyboxVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices,GL_STATIC_DRAW);
     glGenVertexArrays(1,&skyboxVAO);
+    glBindVertexArray(skyboxVAO);
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void *)0);
     glEnableVertexAttribArray(1);
 
@@ -587,7 +588,7 @@ unsigned int loadCubeMapTexture(const char *directory,std::vector<std::string>& 
             std::cout << "Failed to load texture." << basePath << std::endl;
         }
 
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(false);
         if (data)
         {
             GLint format = GL_RGB;
@@ -721,7 +722,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     // view/projection transformations
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), viewportWidth / viewportHeight, 0.1f, 100.0f);
-    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
     glDepthMask(GL_FALSE);
     renderPassInfo->skyboxShader->use();
@@ -732,9 +733,10 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP,renderPassInfo->skyboxTexture);
     glBindVertexArray(renderPassInfo->skyboxVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36));
     glDepthMask(GL_TRUE);
 
+    view = camera.GetViewMatrix();
     renderPassInfo->lightingShader->use();
     renderPassInfo->lightingShader->setMat4("projection", projection);
     renderPassInfo->lightingShader->setMat4("view", view);
@@ -754,6 +756,7 @@ void drawCube(RenderPassInfo *renderPassInfo) {
     model = glm::scale(model,glm::vec3(0.2,0.2,0.2));
     renderPassInfo->lightingShader->setMat4("model", model);
     renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
+
 
     renderPassInfo->lightCubeShader->use();
     renderPassInfo->lightCubeShader->setMat4("projection", projection);
