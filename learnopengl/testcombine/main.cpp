@@ -132,8 +132,9 @@ int main()
 
     imguiInit(window);
 
-    std::string path = "./nanosuit/nanosuit.obj";
-//    Model model(path);
+//    std::string path = "./nanosuit/nanosuit.obj";
+    std::string path = "./test4.obj";
+    Model model(path);
 
     Shader lightingShader("cube.vs", "cube.fs"); //聚光
     Shader lightCubeShader("light_cube.vs", "light_cube.fs");
@@ -256,7 +257,7 @@ int main()
     context.cubePositions = cubePositions;
     context.vertices = vertices;
     context.verticesCount = sizeof(vertices);
-//    context.model = &model;
+    context.model = &model;
     context.frameShader = &frameShader;
     gContext = &context;
 
@@ -495,11 +496,6 @@ void drawCube(RenderPassInfo *renderPassInfo,int pass) {
     glViewport(rect.Min.x * 2, SCR_HEIGHT * 2 - rect.Max.y * 2  ,viewportWidth,viewportHeight);
 
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glBindVertexArray(renderPassInfo->cubeVAO);
@@ -563,27 +559,15 @@ void drawCube(RenderPassInfo *renderPassInfo,int pass) {
     renderPassInfo->frameShader->setMat4("projection", projection);
     renderPassInfo->frameShader->setMat4("view", view);
 
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
     renderPassInfo->lightingShader->use();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 0.5f));
     renderPassInfo->lightingShader->setMat4("model", model);
     glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
 
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-
-    renderPassInfo->frameShader->use();
-    model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 0.5f));
-    model = glm::scale(model,glm::vec3(1.1,1.1,1.1));
-    renderPassInfo->frameShader->setMat4("model", model);
-    glDrawArrays(GL_TRIANGLES, 0, renderPassInfo->verticesCount);
-
-    glStencilMask(0xFF);
-    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    model = glm::mat4 (1.0);
+    renderPassInfo->lightingShader->setMat4("model", model);
+    renderPassInfo->model->Draw(*renderPassInfo->lightingShader);
 
     glEnable(GL_DEPTH_TEST);
     glActiveTexture(last_active_texture);
