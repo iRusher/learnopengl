@@ -16,7 +16,6 @@
 
 #include "shader_m.h"
 
-
 struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
@@ -49,6 +48,7 @@ private:
 class Model {
 public:
     Model(std::string& path){ loadModel(path); }
+    Model(std::string&& path){ loadModel(path); }
     void Draw(Shader& shader);
 private:
     std::vector<Mesh> meshes;

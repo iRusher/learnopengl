@@ -12,6 +12,7 @@ target_sources(simplepipeline
         Pipeline.cpp
         RenderPass.cpp
         RenderWindow.cpp
+        Scene.cpp
         Texture.cpp
 )
 

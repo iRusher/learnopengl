@@ -6,7 +6,20 @@
 
 namespace sp{
 
-class Buffer {
+enum BufferType {
+    VAO,
+    VBO,
+    EBO
 };
+
+template <typename T>
+class Buffer {
+
+public:
+    BufferType bufferType;
+    T *data;
+    int size;
+};
+
 
 }

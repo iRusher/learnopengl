@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Device.h"
+
 namespace sp {
 
 void App::init() {
@@ -22,7 +23,7 @@ void App::init() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(this->device->GetScreenWidth(), this->device->GetScreenHeight(), "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800,600, "SimplePipeline", NULL, NULL);
     if (window == NULL)
     {
         glfwTerminate();
@@ -36,15 +37,18 @@ void App::init() {
     }
 
     this->window = window;
-
 }
 
 void App::run() {
     while (!glfwWindowShouldClose(window))
     {
+        glClearColor(0.0,0.0,0.0,1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
 
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
-    this->close();
 }
 
 void App::close() {
