@@ -19,6 +19,8 @@ target_link_libraries(learn_testcombine glfw)
 target_link_libraries(learn_testcombine glad)
 target_link_libraries(learn_testcombine imgui)
 target_link_libraries(learn_testcombine learncommon)
+target_link_libraries(learn_testcombine simplepipeline)
+
 
 
 #add_executable(learn_stenciltest stenciltest.cpp)
