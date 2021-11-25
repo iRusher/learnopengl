@@ -14,6 +14,9 @@ target_sources(simplepipeline
         RenderWindow.cpp
         Scene.cpp
         Texture.cpp
+
+        memory/AllocObject.cpp
+        memory/Object.cpp
 )
 
 target_include_directories(
