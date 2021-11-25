@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Device.h"
+#include "Pipeline.h"
 
 namespace sp {
 
@@ -20,9 +21,19 @@ public:
     void run();
     void close();
 
+    Pipeline *getDefaultPipeline();
+
+private:
+
+    void init();
+
 private:
     GLFWwindow *window;
     Device *device;
-    void init();
+
+    Pipeline *defaultPipeline;
+
+
+
 };
 }

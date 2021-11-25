@@ -59,4 +59,8 @@ App::App() {
     this->init();
 }
 
+Pipeline *App::getDefaultPipeline() {
+    return nullptr;
+}
+
 }
