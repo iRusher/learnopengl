@@ -5,18 +5,19 @@
 #pragma once
 
 namespace sp {
-struct Device {
-    int screenWidth;
-    int screenHeight;
+    struct Device {
+        int screenWidth;
+        int screenHeight;
 
-    int scale = 1; // Retina = 2
+        int scale = 1; // Retina = 2
 
-    Device():screenWidth(800),screenHeight(600),scale(2.0){}
+        Device() : screenWidth(800), screenHeight(600), scale(2.0) {}
 
-    int GetScreenWidth() { return screenWidth * scale; }
-    int GetScreenHeight() { return screenHeight * scale; }
+        int GetScreenWidth() { return screenWidth * scale; }
 
-};
+        int GetScreenHeight() { return screenHeight * scale; }
+
+    };
 }
 
 

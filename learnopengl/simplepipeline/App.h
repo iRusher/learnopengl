@@ -12,28 +12,32 @@
 
 namespace sp {
 
+    class Scene;
 
-class App {
+    class App {
 
-public:
-    App();
+    public:
+        App();
 
-    void run();
-    void close();
+        void run(std::shared_ptr<Scene> scene);
+        void close();
 
-    Pipeline *getDefaultPipeline();
+        Pipeline *getDefaultPipeline();
 
-private:
+    private:
+        void init();
+        void setupWindow();
+        void setupDefaultPipeline();
 
-    void init();
+        void mainloop();
 
-private:
-    GLFWwindow *window;
-    Device *device;
+    private:
+        GLFWwindow *_window;
+        Device *_device;
 
-    Pipeline *defaultPipeline;
+        Pipeline *_defaultPipeline;
 
+        std::shared_ptr<Scene> _scene;
 
-
-};
+    };
 }

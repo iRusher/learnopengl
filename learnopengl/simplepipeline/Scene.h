@@ -4,11 +4,35 @@
 
 #pragma once
 
+#include <vector>
+
 namespace sp {
 
-class Scene {
+    class Model;
 
-};
+    class Camera;
+
+
+    class Scene {
+
+    public:
+        Scene();
+        ~Scene();
+
+        void init();
+
+        void addModel(Model *model);
+
+        std::vector<Model *> *getModesl();
+
+        std::vector<Camera *> *gemCameras();
+
+
+    private:
+        std::vector<Model *> *_models{};
+        std::vector<Camera *> *_cameras{};
+
+    };
 
 }
 

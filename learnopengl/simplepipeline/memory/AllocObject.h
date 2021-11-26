@@ -9,30 +9,31 @@
 
 namespace sp {
 
-template<class Allocator>
-class AllocObject {
+    template<class Allocator>
+    class AllocObject {
 
-public:
-    explicit AllocObject() = default;
-    virtual ~AllocObject() = default;
+    public:
+        explicit AllocObject() = default;
 
-    void *operator new (size_t sz) {
-        return sp::Allocator::AllocateBytes(sz);
-    }
+        virtual ~AllocObject() = default;
 
-    void *operator new[](size_t sz) {
-        return sp::Allocator::AllocateBytes(sz);
-    }
+        void *operator new(size_t sz) {
+            return sp::Allocator::AllocateBytes(sz);
+        }
 
-    void operator delete (void *ptr) {
-        sp::Allocator::DeallocateBytes(ptr);
-    }
+        void *operator new[](size_t sz) {
+            return sp::Allocator::AllocateBytes(sz);
+        }
 
-    void operator delete[] (void *ptr) {
-        sp::Allocator::DeallocateBytes(ptr);
-    }
+        void operator delete(void *ptr) {
+            sp::Allocator::DeallocateBytes(ptr);
+        }
 
-};
+        void operator delete[](void *ptr) {
+            sp::Allocator::DeallocateBytes(ptr);
+        }
+
+    };
 
 }
 

@@ -39,6 +39,7 @@ while(!exitFlag) {
 App app;
 Device device;
 
+Scene scene;
 
 
 ```

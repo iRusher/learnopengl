@@ -5,7 +5,7 @@
 #pragma once
 
 namespace sp {
-class RenderWindow {
+    class RenderWindow {
 
-};
+    };
 }

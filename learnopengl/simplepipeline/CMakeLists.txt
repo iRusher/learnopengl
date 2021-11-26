@@ -17,7 +17,7 @@ target_sources(simplepipeline
 
         memory/AllocObject.cpp
         memory/Object.cpp
-)
+        )
 
 target_include_directories(
         simplepipeline

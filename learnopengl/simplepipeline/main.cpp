@@ -5,20 +5,17 @@
 #include "App.h"
 #include "memory/AllocObject.h"
 
-using Object = sp::AllocObject<sp::Allocator>;
+#include "Scene.h"
 
-class Test: public Object {
-public:
-    Test() = default;
-};
+#include <iostream>
 
 int main() {
 
     sp::App app;
-    app.run();
+    std::shared_ptr<sp::Scene> scene(new sp::Scene());
+    app.run(scene);
 
-    Test *t = new Test();
-    delete t;
+    app.close();
 
     return 0;
 }

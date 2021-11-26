@@ -3,3 +3,19 @@
 //
 
 #include "Pipeline.h"
+#include "Camera.h"
+#include <iostream>
+
+namespace sp {
+
+    void Pipeline::render(std::vector<Camera *> *cameras) {
+
+        for (Camera *camera: *cameras) {
+
+
+        }
+
+    }
+
+}
+

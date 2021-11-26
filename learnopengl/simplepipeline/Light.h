@@ -5,9 +5,8 @@
 #pragma once
 
 namespace sp {
-class Light {
+    class Light {
 
 
-
-};
+    };
 }

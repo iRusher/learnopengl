@@ -5,8 +5,8 @@
 #pragma once
 
 namespace sp {
-class Model {
+    class Model {
 
-};
 
+    };
 }

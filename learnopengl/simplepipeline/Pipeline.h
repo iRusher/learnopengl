@@ -4,9 +4,18 @@
 
 #pragma once
 
-namespace sp {
-class Pipeline {
+#include <vector>
 
-};
+
+namespace sp {
+
+    class Camera;
+
+    class Pipeline {
+
+    public:
+
+        void render(std::vector<Camera *> *cameras);
+    };
 
 }

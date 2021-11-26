@@ -8,27 +8,27 @@
 #include <memory>
 
 namespace sp {
-class Allocator {
+    class Allocator {
 
-public:
+    public:
 
-    static void *AllocateBytes(size_t size) {
-        void *ptr = malloc(size);
-        return ptr;
-    }
+        static void *AllocateBytes(size_t size) {
+            void *ptr = malloc(size);
+            return ptr;
+        }
 
-    static void *ReallocateBytes(void *ptr,size_t size) {
-        return realloc(ptr,size);
-    }
+        static void *ReallocateBytes(void *ptr, size_t size) {
+            return realloc(ptr, size);
+        }
 
-    static void DeallocateBytes(void *ptr) {
-        free(ptr);
-    }
+        static void DeallocateBytes(void *ptr) {
+            free(ptr);
+        }
 
-private:
-    Allocator(){}
+    private:
+        Allocator() {}
 
-};
+    };
 
 }
 

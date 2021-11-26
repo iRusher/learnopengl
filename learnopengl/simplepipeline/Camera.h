@@ -4,7 +4,7 @@
 
 #pragma once
 namespace sp {
-class Camera {
+    class Camera {
 
-};
+    };
 }

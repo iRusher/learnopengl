@@ -4,28 +4,29 @@
 
 #pragma once
 
-namespace sp{
+namespace sp {
 
-enum BufferType {
-    VAO,
-    VBO,
-    EBO
-};
+    enum BufferType {
+        VAO,
+        VBO,
+        EBO
+    };
 
-template <typename T>
-class Buffer {
+    template<typename T>
+    class Buffer {
 
-public:
+    public:
 
-    static Buffer<T>* createVBO(T *data,int size);
-    static Buffer<T>* createVAO(T *data,int size);
-    static Buffer<T>* createEBO(T *data,int size);
+        static Buffer<T> *createVBO(T *data, int size);
 
-    BufferType bufferType;
-    T *data;
-    int size;
-};
+        static Buffer<T> *bindVAO(T *data, int size);
 
+        static Buffer<T> *createEBO(T *data, int size);
+
+        BufferType bufferType;
+        T *data;
+        int size;
+    };
 
 
 }
