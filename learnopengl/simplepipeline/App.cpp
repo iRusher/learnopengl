@@ -53,11 +53,11 @@ namespace sp {
     }
 
 
-    void App::run(std::shared_ptr<Scene> scene) {
+    void App::run(std::shared_ptr<Scene> &scene) {
+        if (_scene) _scene.reset();
+
         _scene = scene;
-
         std::cout << _scene.use_count() << std::endl;
-
 //        mainloop();
     }
 

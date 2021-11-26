@@ -19,7 +19,7 @@ namespace sp {
     public:
         App();
 
-        void run(std::shared_ptr<Scene> scene);
+        void run(std::shared_ptr<Scene>& scene);
         void close();
 
         Pipeline *getDefaultPipeline();
