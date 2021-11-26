@@ -6,7 +6,5 @@
 
 namespace sp {
     class Model {
-
-
     };
-}
+}// namespace sp

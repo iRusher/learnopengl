@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include "Device.h"
 #include "Pipeline.h"
@@ -18,26 +18,20 @@ namespace sp {
 
     public:
         App();
-
-        void run(std::shared_ptr<Scene>& scene);
+        void run(std::shared_ptr<Scene> &scene);
         void close();
-
         Pipeline *getDefaultPipeline();
 
     private:
         void init();
         void setupWindow();
         void setupDefaultPipeline();
-
         void mainloop();
 
     private:
         GLFWwindow *_window;
         Device *_device;
-
         Pipeline *_defaultPipeline;
-
         std::shared_ptr<Scene> _scene;
-
     };
-}
+}// namespace sp

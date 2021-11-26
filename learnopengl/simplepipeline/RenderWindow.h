@@ -6,6 +6,5 @@
 
 namespace sp {
     class RenderWindow {
-
     };
-}
+}// namespace sp

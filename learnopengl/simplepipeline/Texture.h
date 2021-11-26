@@ -5,8 +5,11 @@
 #pragma once
 
 namespace sp {
+
     class Texture {
+
+        unsigned int getTextureId();
 
     };
 
-}
+}// namespace sp

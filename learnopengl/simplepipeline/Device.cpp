@@ -6,9 +6,9 @@
 
 namespace sp {
 
-    static Device retina(800,600,2);
+    static Device retina(800, 600, 2);
 
     Device &Device::getRetinaDevice() {
         return retina;
     }
-}
+}// namespace sp

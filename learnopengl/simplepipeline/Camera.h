@@ -5,6 +5,5 @@
 #pragma once
 namespace sp {
     class Camera {
-
     };
-}
+}// namespace sp

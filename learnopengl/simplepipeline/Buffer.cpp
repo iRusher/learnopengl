@@ -8,7 +8,6 @@
 namespace sp {
 
     template<typename T>
-
     Buffer<T> *Buffer<T>::createVBO(T *data, int size) {
         unsigned int VBO;
         glGenBuffers(1, &VBO);
@@ -51,4 +50,4 @@ namespace sp {
     }
 
 
-}
+}// namespace sp

@@ -3,3 +3,10 @@
 //
 
 #include "Texture.h"
+
+namespace sp{
+
+    unsigned int Texture::getTextureId() {
+        return 0;
+    }
+}

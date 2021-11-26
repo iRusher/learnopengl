@@ -11,7 +11,6 @@ namespace sp {
     class Allocator {
 
     public:
-
         static void *AllocateBytes(size_t size) {
             void *ptr = malloc(size);
             return ptr;
@@ -27,10 +26,6 @@ namespace sp {
 
     private:
         Allocator() {}
-
     };
 
-}
-
-
-
+}// namespace sp

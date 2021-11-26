@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <cstdlib>
 #include "Allocator.h"
+#include <cstdlib>
 
 namespace sp {
 
@@ -32,9 +32,6 @@ namespace sp {
         void operator delete[](void *ptr) {
             sp::Allocator::DeallocateBytes(ptr);
         }
-
     };
 
-}
-
-
+}// namespace sp

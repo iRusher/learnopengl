@@ -55,9 +55,7 @@ namespace sp {
         if (_scene) _scene.reset();
         _scene = scene;
 
-        _defaultPipeline->render(_scene->gemCameras());
-//        mainloop();
-
+        _defaultPipeline->render(_scene->getCameras());
     }
 
     void App::mainloop() {
@@ -82,11 +80,9 @@ namespace sp {
     }
 
 
-
     Pipeline *App::getDefaultPipeline() {
         return _defaultPipeline;
     }
 
 
-
-}
+}// namespace sp

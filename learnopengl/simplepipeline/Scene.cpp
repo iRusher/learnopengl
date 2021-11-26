@@ -4,8 +4,8 @@
 
 #include "Scene.h"
 
-#include "Model.h"
 #include "Camera.h"
+#include "Model.h"
 
 #include <iostream>
 
@@ -17,41 +17,34 @@ namespace sp {
 
     void Scene::init() {
 
-        _cameras = new std::vector<Camera*>;
         Camera *camera = new Camera;
-        _cameras->push_back(camera);
-
-        _models = new std::vector<Model *>;
-
-        std::cout << "in Scene()" << std::endl;
+        _cameras.push_back(camera);
     }
 
     void Scene::addModel(Model *model) {
         if (model)
-            _models->emplace_back(model);
+            _models.emplace_back(model);
     }
 
-    std::vector<Model *> *Scene::getModesl() {
+    std::vector<Model *> &Scene::getModesl() {
         return _models;
     }
 
-    std::vector<Camera *> *Scene::gemCameras() {
+    std::vector<Camera *> &Scene::getCameras() {
         return _cameras;
     }
 
     Scene::~Scene() {
         std::cout << "in ~Scene()" << std::endl;
 
-        for (Camera *camera:*_cameras) {
+        for (Camera *camera : _cameras) {
             delete camera;
         }
-        delete _cameras;
 
-        for (Model *model: *_models) {
+        for (Model *model : _models) {
             delete model;
         }
-        delete _models;
     }
 
 
-}
+}// namespace sp

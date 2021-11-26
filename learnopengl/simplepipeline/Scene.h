@@ -9,10 +9,7 @@
 namespace sp {
 
     class Model;
-
     class Camera;
-
-
     class Scene {
 
     public:
@@ -20,20 +17,13 @@ namespace sp {
         ~Scene();
 
         void init();
-
         void addModel(Model *model);
-
-        std::vector<Model *> *getModesl();
-
-        std::vector<Camera *> *gemCameras();
-
+        std::vector<Model *> &getModesl();
+        std::vector<Camera *> &getCameras();
 
     private:
-        std::vector<Model *> *_models{};
-        std::vector<Camera *> *_cameras{};
-
+        std::vector<Model *> _models{};
+        std::vector<Camera *> _cameras{};
     };
 
-}
-
-
+}// namespace sp

@@ -6,7 +6,5 @@
 
 namespace sp {
     class Light {
-
-
     };
-}
+}// namespace sp

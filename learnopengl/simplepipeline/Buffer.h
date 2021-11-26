@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "memory/Object.h"
+
 namespace sp {
 
     enum BufferType {
@@ -13,20 +15,16 @@ namespace sp {
     };
 
     template<typename T>
-    class Buffer {
+    class Buffer : public Object {
 
     public:
-
         static Buffer<T> *createVBO(T *data, int size);
-
         static Buffer<T> *bindVAO(T *data, int size);
-
         static Buffer<T> *createEBO(T *data, int size);
-
         BufferType bufferType;
         T *data;
         int size;
     };
 
 
-}
+}// namespace sp

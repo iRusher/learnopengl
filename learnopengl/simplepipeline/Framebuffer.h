@@ -6,6 +6,5 @@
 
 namespace sp {
     class Framebuffer {
-
     };
-}
+}// namespace sp
