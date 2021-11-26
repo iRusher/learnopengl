@@ -4,7 +4,12 @@
 
 #pragma once
 
+#include "Allocator.h"
+#include "AllocObject.h"
+
 namespace sp {
+
+    using Object = AllocObject<Allocator>;
 
 
 }

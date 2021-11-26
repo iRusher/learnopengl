@@ -12,6 +12,7 @@ namespace sp {
 
         for (Camera *camera: *cameras) {
 
+            std::cout << "render" << std::endl;
 
         }
 

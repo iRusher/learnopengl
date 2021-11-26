@@ -17,11 +17,9 @@ namespace sp {
     }
 
     void App::init() {
-
         _device = new sp::Device;
         setupWindow();
         setupDefaultPipeline();
-
     }
 
     void App::setupWindow() {
@@ -55,10 +53,11 @@ namespace sp {
 
     void App::run(std::shared_ptr<Scene> &scene) {
         if (_scene) _scene.reset();
-
         _scene = scene;
-        std::cout << _scene.use_count() << std::endl;
+
+        _defaultPipeline->render(_scene->gemCameras());
 //        mainloop();
+
     }
 
     void App::mainloop() {
@@ -66,7 +65,6 @@ namespace sp {
             glClearColor(0.0, 0.0, 0.0, 1.0);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            _defaultPipeline->render(_scene->gemCameras());
 
             glfwSwapBuffers(_window);
             glfwPollEvents();
