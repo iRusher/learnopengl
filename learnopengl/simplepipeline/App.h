@@ -29,9 +29,9 @@ namespace sp {
         void mainloop();
 
     private:
-        GLFWwindow *_window;
-        Device *_device;
-        Pipeline *_defaultPipeline;
+        GLFWwindow *_window = nullptr;
+        Device *_device = nullptr;
+        Pipeline *_defaultPipeline = nullptr;
         Scene *_scene = nullptr;
     };
 }// namespace sp

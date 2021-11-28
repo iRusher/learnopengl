@@ -162,7 +162,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
 
 unsigned int loadTextureFromFile(std::string fileName) {
 
-//    std::cout << fileName << std::endl;
+    std::cout << fileName << std::endl;
 
     unsigned int texture1;
     glGenTextures(1, &texture1);

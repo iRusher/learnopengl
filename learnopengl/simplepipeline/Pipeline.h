@@ -13,14 +13,17 @@ namespace sp {
 
     class Model;
     class Scene;
+    class RenderPass;
 
     class Pipeline {
 
     public:
+        Pipeline() { init(); };
+        void init();
         void render(std::vector<Camera *> &cameras);
 
     private:
-        std::shared_ptr<Scene> _scene;
+        std::vector<RenderPass *> passes;
     };
 
 }// namespace sp

@@ -13,7 +13,7 @@
 int main() {
 
     sp::App app;
-    sp::Scene *scene = new sp::Scene;
+    auto *scene = new sp::Scene;
     app.run(scene);
 
     app.close();

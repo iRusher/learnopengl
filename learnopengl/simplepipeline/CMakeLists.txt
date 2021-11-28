@@ -8,6 +8,7 @@ target_sources(simplepipeline
         Device.cpp
         Framebuffer.cpp
         Light.cpp
+        Material.cpp
         Model.cpp
         Pipeline.cpp
         RenderPass.cpp
@@ -39,4 +40,5 @@ add_custom_command(
         TARGET sprun PRE_BUILD
         COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../resources/nanosuit ${CMAKE_CURRENT_BINARY_DIR}
         COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../resources/skybox ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
 )

@@ -55,8 +55,10 @@ void App::run(Scene *scene) {
         _scene->destroy();
         delete _scene;
     }
+
     _scene = scene;
     _defaultPipeline->render(_scene->getCameras());
+
     mainloop();
 }
 
@@ -66,6 +68,7 @@ void App::mainloop() {
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        _defaultPipeline->render(_scene->getCameras());
 
         glfwSwapBuffers(_window);
         glfwPollEvents();
