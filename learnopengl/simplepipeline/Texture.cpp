@@ -6,6 +6,3 @@
 
 using namespace sp;
 
-unsigned int Texture::getTextureId() {
-    return 0;
-}

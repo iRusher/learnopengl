@@ -8,6 +8,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 static std::unordered_map<std::string,Texture> textCache;
@@ -154,8 +155,6 @@ void Model::Draw(Shader &shader) {
 }
 
 unsigned int loadTextureFromFile(std::string fileName) {
-
-//    std::cout << fileName << std::endl;
 
     unsigned int texture1;
     glGenTextures(1, &texture1);

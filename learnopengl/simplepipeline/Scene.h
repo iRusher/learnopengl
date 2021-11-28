@@ -21,6 +21,8 @@ namespace sp {
         std::vector<Model *> &getModels();
         std::vector<Camera *> &getCameras();
 
+        void destroy();
+
     private:
         std::vector<Model *> _models{};
         std::vector<Camera *> _cameras{};

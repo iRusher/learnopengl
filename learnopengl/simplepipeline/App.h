@@ -18,7 +18,7 @@ namespace sp {
 
     public:
         App();
-        void run(std::shared_ptr<Scene> &scene);
+        void run(Scene *scene);
         void close();
         Pipeline *getDefaultPipeline();
 
@@ -32,6 +32,6 @@ namespace sp {
         GLFWwindow *_window;
         Device *_device;
         Pipeline *_defaultPipeline;
-        std::shared_ptr<Scene> _scene;
+        Scene *_scene = nullptr;
     };
 }// namespace sp

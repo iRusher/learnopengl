@@ -13,7 +13,7 @@
 int main() {
 
     sp::App app;
-    std::shared_ptr<sp::Scene> scene(new sp::Scene());
+    sp::Scene *scene = new sp::Scene;
     app.run(scene);
 
     app.close();

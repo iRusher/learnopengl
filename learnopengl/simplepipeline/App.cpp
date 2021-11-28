@@ -33,7 +33,7 @@ void App::setupWindow() {
 #endif
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "SimplePipeline", NULL, NULL);
-    if (window == NULL) {
+    if (window == nullptr) {
         glfwTerminate();
     }
 
@@ -50,13 +50,16 @@ void App::setupDefaultPipeline() {
     _defaultPipeline = new Pipeline;
 }
 
-
-void App::run(std::shared_ptr<Scene> &scene) {
-    if (_scene) _scene.reset();
+void App::run(Scene *scene) {
+    if (_scene) {
+        _scene->destroy();
+        delete _scene;
+    }
     _scene = scene;
-
     _defaultPipeline->render(_scene->getCameras());
+    mainloop();
 }
+
 
 void App::mainloop() {
     while (!glfwWindowShouldClose(_window)) {

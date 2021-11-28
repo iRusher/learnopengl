@@ -39,6 +39,9 @@ std::vector<Camera *> &Scene::getCameras() {
 
 Scene::~Scene() {
 
+}
+
+void Scene::destroy() {
     for (Camera *camera : _cameras) {
         delete camera;
     }

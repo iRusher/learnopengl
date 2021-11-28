@@ -5,15 +5,57 @@
 #include "Model.h"
 
 #include <glad/glad.h>
-#include <iostream>
-#include <unordered_map>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <iostream>
+#include <unordered_map>
+
 using namespace sp;
+
+void Mesh::setupMesh() {
+    glGenVertexArrays(1,&VAO);
+    glGenBuffers(1,&VBO);
+    glGenBuffers(1,&EBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+
+    glBufferData(GL_ARRAY_BUFFER,vertices.size() * sizeof(Vertex),&vertices[0],GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned  int),&indices[0],GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)0);
+
+//    offsetof(s, m)，它的第一个参数是一个结构体，第二个参数是这个结构体中变量的名字。
+//    这个宏会返回那个变量距结构体头部的字节偏移量(Byte Offset)
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)offsetof(Vertex,normal));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(void *)offsetof(Vertex,textCoord));
+
+    glBindVertexArray(0);
+}
+
+void Mesh::Draw(Shader& shader) {
+    for (int i = 0; i < this->textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+    }
+
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
+    glBindVertexArray(0);
+}
+
 
 Model::Model(std::string path):_path(std::move(path)) {
     load();
@@ -34,7 +76,7 @@ void Model::load() {
 void Model::processNode(aiNode *node, const aiScene *scene) {
     for (int i = 0; i < node->mNumMeshes; ++i) {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh,scene));
+        _meshes.push_back(processMesh(mesh,scene));
     }
 
     for (int i = 0; i < node->mNumChildren; ++i) {
@@ -92,13 +134,16 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     return Mesh(vertices,indices,textures);
 }
 
+std::unordered_map<std::string,Texture> textCache;
+unsigned int loadTextureFromFile(std::string fileName);
+
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
     std::vector<Texture> textures;
     for (int i = 0; i < mat->GetTextureCount(type); ++i) {
         aiString str;
         mat->GetTexture(type,i,&str);
 
-        std::string filename(directory);
+        std::string filename(_directory);
         filename = filename + "/" + str.C_Str();
         if (textCache.find(filename) != textCache.end()) {
             textures.push_back(textCache.find(filename)->second);
@@ -115,3 +160,45 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     return textures;
 }
 
+unsigned int loadTextureFromFile(std::string fileName) {
+
+//    std::cout << fileName << std::endl;
+
+    unsigned int texture1;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width,height,nrChannels;
+
+    unsigned char * data = stbi_load(fileName.c_str(),&width,&height,&nrChannels,0);
+    if (!data) {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_set_flip_vertically_on_load(true);
+    if (data)
+    {
+        GLint format = GL_RGB;
+        if (nrChannels == 1) {
+            format = GL_RED;
+        } else if (nrChannels == 3) {
+            format = GL_RGB;
+        } else if (nrChannels == 4) {
+            format = GL_RGBA;
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout<< "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    return texture1;
+}

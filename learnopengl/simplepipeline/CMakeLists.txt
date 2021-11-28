@@ -28,6 +28,7 @@ target_link_libraries(simplepipeline glad)
 target_link_libraries(simplepipeline glm)
 target_link_libraries(simplepipeline glfw)
 target_link_libraries(simplepipeline imgui)
+target_link_libraries(simplepipeline assimp)
 
 
 # /////////////////////////////////////////////////
