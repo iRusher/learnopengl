@@ -18,6 +18,7 @@ Scene::Scene() {
 void Scene::init() {
 
     Camera *camera = new Camera;
+    camera->setScene(this);
     _cameras.push_back(camera);
 
     Model *model = new Model("./nanosuit/nanosuit.obj");

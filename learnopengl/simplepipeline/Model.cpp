@@ -61,6 +61,13 @@ Model::Model(std::string path):_path(std::move(path)) {
     load();
 }
 
+void Model::Draw(Shader &shader) {
+    for(Mesh &mesh:_meshes) {
+        mesh.Draw(shader);
+    }
+}
+
+
 void Model::load() {
 
     Assimp::Importer importer;

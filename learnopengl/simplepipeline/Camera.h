@@ -4,6 +4,17 @@
 
 #pragma once
 namespace sp {
+
+    class Scene;
+
     class Camera {
+    public:
+
+        void setScene(Scene *scene);
+        Scene *getScene();
+
+    private:
+        Scene *_scene;
+
     };
 }// namespace sp

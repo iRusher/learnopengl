@@ -65,8 +65,6 @@ void App::run(Scene *scene) {
 
 void App::mainloop() {
     while (!glfwWindowShouldClose(_window)) {
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         _defaultPipeline->render(_scene->getCameras());
 

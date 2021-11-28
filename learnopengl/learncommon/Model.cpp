@@ -8,7 +8,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 static std::unordered_map<std::string,Texture> textCache;

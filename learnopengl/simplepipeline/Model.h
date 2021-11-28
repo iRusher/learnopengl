@@ -49,6 +49,7 @@ namespace sp {
 
     public:
         Model(std::string path);
+        void Draw(sp::Shader &shader);
     private:
 
         void load();
