@@ -9,42 +9,41 @@
 
 #include <iostream>
 
-namespace sp {
+using namespace sp;
 
-    Scene::Scene() {
-        init();
+Scene::Scene() {
+    init();
+}
+
+void Scene::init() {
+
+    Camera *camera = new Camera;
+    _cameras.push_back(camera);
+
+    Model *model = new Model("./nanosuit/nanosuit.obj");
+    _models.push_back(model);
+}
+
+void Scene::addModel(Model *model) {
+    if (model)
+        _models.emplace_back(model);
+}
+
+std::vector<Model *> &Scene::getModels() {
+    return _models;
+}
+
+std::vector<Camera *> &Scene::getCameras() {
+    return _cameras;
+}
+
+Scene::~Scene() {
+
+    for (Camera *camera : _cameras) {
+        delete camera;
     }
 
-    void Scene::init() {
-
-        Camera *camera = new Camera;
-        _cameras.push_back(camera);
+    for (Model *model : _models) {
+        delete model;
     }
-
-    void Scene::addModel(Model *model) {
-        if (model)
-            _models.emplace_back(model);
-    }
-
-    std::vector<Model *> &Scene::getModesl() {
-        return _models;
-    }
-
-    std::vector<Camera *> &Scene::getCameras() {
-        return _cameras;
-    }
-
-    Scene::~Scene() {
-        std::cout << "in ~Scene()" << std::endl;
-
-        for (Camera *camera : _cameras) {
-            delete camera;
-        }
-
-        for (Model *model : _models) {
-            delete model;
-        }
-    }
-
-
-}// namespace sp
+}

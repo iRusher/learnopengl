@@ -4,9 +4,8 @@
 
 #include "Texture.h"
 
-namespace sp{
+using namespace sp;
 
-    unsigned int Texture::getTextureId() {
-        return 0;
-    }
+unsigned int Texture::getTextureId() {
+    return 0;
 }

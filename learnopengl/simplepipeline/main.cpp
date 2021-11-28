@@ -8,6 +8,7 @@
 #include "Scene.h"
 
 #include <iostream>
+#include <vector>
 
 int main() {
 
@@ -16,6 +17,7 @@ int main() {
     app.run(scene);
 
     app.close();
+    
 
     return 0;
 }

@@ -18,7 +18,7 @@ namespace sp {
 
         void init();
         void addModel(Model *model);
-        std::vector<Model *> &getModesl();
+        std::vector<Model *> &getModels();
         std::vector<Camera *> &getCameras();
 
     private:

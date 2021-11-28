@@ -4,18 +4,17 @@
 
 #include "RenderPass.h"
 
-namespace sp {
+using namespace sp;
 
-    void RenderPass::beginRenderPass() {
-    }
+void RenderPass::beginRenderPass() {
+}
 
-    void RenderPass::render() {
-    }
+void RenderPass::render() {
+}
 
-    void RenderPass::endRenderPass() {
-    }
+void RenderPass::endRenderPass() {
+}
 
-    void RenderPass::setPipeline(Pipeline *pipeline) {
-        _pipeline = pipeline;
-    }
-}// namespace sp
+void RenderPass::setPipeline(Pipeline *pipeline) {
+    _pipeline = pipeline;
+}

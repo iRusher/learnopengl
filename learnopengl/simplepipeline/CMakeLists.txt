@@ -21,11 +21,21 @@ target_sources(simplepipeline
 target_include_directories(
         simplepipeline
         PUBLIC .
+        PRIVATE ../include
 )
+
 target_link_libraries(simplepipeline glad)
 target_link_libraries(simplepipeline glm)
 target_link_libraries(simplepipeline glfw)
 target_link_libraries(simplepipeline imgui)
 
+
+# /////////////////////////////////////////////////
+# sprun
 add_executable(sprun main.cpp)
 target_link_libraries(sprun simplepipeline)
+add_custom_command(
+        TARGET sprun PRE_BUILD
+        COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../resources/nanosuit ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../resources/skybox ${CMAKE_CURRENT_BINARY_DIR}
+)

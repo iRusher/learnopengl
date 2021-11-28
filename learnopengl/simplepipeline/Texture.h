@@ -4,12 +4,14 @@
 
 #pragma once
 
+#include <string>
+
 namespace sp {
 
-    class Texture {
-
-        unsigned int getTextureId();
-
+    struct Texture {
+        unsigned int id;
+        std::string type;
+        std::string path;
     };
 
 }// namespace sp

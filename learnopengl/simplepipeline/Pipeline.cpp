@@ -8,20 +8,18 @@
 
 #include <iostream>
 
-namespace sp {
+using namespace sp;
 
-    void Pipeline::render(std::vector<Camera *> &cameras) {
+void Pipeline::render(std::vector<Camera *> &cameras) {
 
-        for (Camera *camera : cameras) {
-        }
+    for (Camera *camera : cameras) {
     }
+}
 
-    std::vector<Model *> &Pipeline::getRenderObjects() {
-    }
+std::vector<Model *> &Pipeline::getRenderObjects() {
+}
 
-    void Pipeline::render(std::shared_ptr<Scene> scene) {
-        _scene = scene;
-        render(_scene->getCameras());
-    }
-
-}// namespace sp
+void Pipeline::render(std::shared_ptr<Scene> scene) {
+    _scene = scene;
+    render(_scene->getCameras());
+}
