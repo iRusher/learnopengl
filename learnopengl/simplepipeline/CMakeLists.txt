@@ -17,6 +17,8 @@ target_sources(simplepipeline
         Texture.cpp
 
         memory/AllocObject.cpp
+
+        primitives/Cube.cpp
         )
 
 target_include_directories(
