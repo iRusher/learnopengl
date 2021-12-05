@@ -1,5 +1,16 @@
-configure_file(color.fs color.fs COPYONLY)
-configure_file(color.vs color.vs COPYONLY)
+configure_file(red.fs red.fs COPYONLY)
+configure_file(red.vs red.vs COPYONLY)
+
+configure_file(blue.fs blue.fs COPYONLY)
+configure_file(blue.vs blue.vs COPYONLY)
+
+configure_file(green.fs green.fs COPYONLY)
+configure_file(green.vs green.vs COPYONLY)
+
+configure_file(yellow.fs yellow.fs COPYONLY)
+configure_file(yellow.vs yellow.vs COPYONLY)
+
+
 configure_file(container.png container.png COPYONLY)
 configure_file(container.jpg container.jpg COPYONLY)
 configure_file(awesomeface.png awesomeface.png COPYONLY)
