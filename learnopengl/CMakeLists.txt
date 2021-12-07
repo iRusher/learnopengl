@@ -24,3 +24,5 @@ add_subdirectory(cubemap)
 add_subdirectory(testcombine)
 add_subdirectory(advanceglsl)
 add_subdirectory(instances)
+
+add_subdirectory(tesla)

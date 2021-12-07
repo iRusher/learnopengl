@@ -10,6 +10,7 @@ target_sources(simplepipeline
         Light.cpp
         Material.cpp
         Model.cpp
+        Orbit.cpp
         Pipeline.cpp
         RenderPass.cpp
         RenderWindow.cpp

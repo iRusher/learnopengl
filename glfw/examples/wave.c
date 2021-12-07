@@ -41,8 +41,8 @@ struct Vertex
     GLfloat r, g, b;
 };
 
-#define GRIDW 50
-#define GRIDH 50
+#define GRIDW 100
+#define GRIDH 100
 #define VERTEXNUM (GRIDW*GRIDH)
 
 #define QUADW (GRIDW - 1)

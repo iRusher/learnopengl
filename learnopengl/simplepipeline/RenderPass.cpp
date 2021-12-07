@@ -12,6 +12,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Orbit.h"
+
 using namespace sp;
 
 void RenderPass::init() {
