@@ -24,7 +24,7 @@ void processInput(GLFWwindow *window);
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
 
 // settings
-const unsigned int SCR_WIDTH = 8034560;
+const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main() {
@@ -56,19 +56,16 @@ int main() {
 
     float quadVertices[] = {
             // 位置          // 颜色
-            -0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
-            0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
-            -0.05f, -0.05f, 0.0f, 0.0f, 1.0f,
+            -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.5f,
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.5f,
+            -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.5f,
 
-            -0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
-            0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
-            0.05f, 0.05f, 0.0f, 1.0f, 1.0f};
+            -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.5f,
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.5f,
+            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.5f};
 
 
     Shader cubeShader("cube.vs", "cube.fs");
-
-    glm::vec3 cameraPos(0,0,5);
-
 
     unsigned int vao, vbo;
 
@@ -79,23 +76,41 @@ int main() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (2 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
 
     while (!glfwWindowShouldClose(window)) {
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 model(1.0f);
+
         cubeShader.use();
+
+        cubeShader.setMat4("projection", projection);
+        cubeShader.setMat4("view", view);
+        cubeShader.setMat4("model", model);
+
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        model = glm::mat4(1.0);
+        model = glm::translate(model, glm::vec3(1.0, 1.0, -3.0));
+        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
+        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0, 1.0, 0.0));
+        cubeShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -109,5 +124,4 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-
 }
