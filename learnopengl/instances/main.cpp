@@ -77,10 +77,17 @@ int main() {
         }
     }
 
+    unsigned int instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
     unsigned int vao, vbo;
 
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    GL_CHECK(glGenBuffers(1, &vbo));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &vao);
@@ -91,6 +98,13 @@ int main() {
 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (2 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glVertexAttribDivisor(2,1);
+
 
     Shader cube("cube.vs", "cube.fs");
 
