@@ -1,20 +1,17 @@
 #version 330 core
+layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
 
-layout (location = 0) in vec3 pVertices;
-layout (location = 1) in vec4 pPosition;
-layout (location = 2) in vec4 pColor;
+out vec2 TexCoords;
+out vec4 ParticleColor;
 
-uniform mat4 model;
-uniform mat4 view;
 uniform mat4 projection;
+uniform vec2 offset;
+uniform vec4 color;
 
 void main()
 {
-	float particleSize = pPosition.w;
-	vec3 particleCenter_wordspace = pPosition.xyz;
-
-	vec3 vertexPosition_worldspace = pVertices +  particleCenter_wordspace;
-
-    gl_Position =  projection * view * model * vec4(pVertices,1.0);
-
+    float scale = 10.0f;
+    TexCoords = vertex.zw;
+    ParticleColor = color;
+    gl_Position = projection * vec4((vertex.xy * scale) + offset, 0.0, 1.0);
 }

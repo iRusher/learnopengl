@@ -41,8 +41,8 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL) {
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr);
+    if (window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -80,7 +80,7 @@ int main() {
     unsigned int instanceVBO;
     glGenBuffers(1, &instanceVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STREAM_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     unsigned int vao, vbo;
@@ -117,16 +117,6 @@ int main() {
         glBindVertexArray(vao);
         cube.use();
 
-        int index = 0;
-        float offset = 0.1f;
-        for (int y = -10; y < 10; y += 2) {
-            for (int x = -10; x < 10; x += 2) {
-                glm::vec2 translation;
-                translation.x = (float) x / 10.0f + offset;
-                translation.y = (float) y / 10.0f + offset;
-                translations[index++] = translation;
-            }
-        }
 
 
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
