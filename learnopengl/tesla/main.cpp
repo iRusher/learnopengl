@@ -99,9 +99,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 view = glm::lookAt(glm::vec3(3, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         glm::mat4 model(1.0f);
         cubeShader.use();
+//        cubeShader.setFloat("iTime",glfwGetTime());
         model = glm::translate(model, glm::vec3(1.0, 1.0, -3.0));
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0, 1.0, 0.0));
