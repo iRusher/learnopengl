@@ -83,7 +83,6 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
     unsigned int vao, vbo;
 
     GL_CHECK(glGenBuffers(1, &vbo));
@@ -117,13 +116,18 @@ int main() {
 
         glBindVertexArray(vao);
         cube.use();
-        for (unsigned int i = 0; i < 100; i++) {
-            std::stringstream ss;
-            std::string index;
-            ss << i;
-            index = ss.str();
-            cube.setVec2(("offsets[" + index + "]").c_str(), translations[i]);
+
+        int index = 0;
+        float offset = 0.1f;
+        for (int y = -10; y < 10; y += 2) {
+            for (int x = -10; x < 10; x += 2) {
+                glm::vec2 translation;
+                translation.x = (float) x / 10.0f + offset;
+                translation.y = (float) y / 10.0f + offset;
+                translations[index++] = translation;
+            }
         }
+
 
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 

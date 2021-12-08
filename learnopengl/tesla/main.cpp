@@ -8,7 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-#include "camera.h"
 #include "shader_m.h"
 #include "Texture.h"
 
@@ -16,6 +15,7 @@
 #include "Cube.h"
 #include "glcheck.h"
 #include "Orbit.h"
+
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
@@ -86,7 +86,14 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    float lastFrame;
+    float deltaTime;
+
     while (!glfwWindowShouldClose(window)) {
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,20 +101,16 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         glm::mat4 model(1.0f);
-
         cubeShader.use();
-
         model = glm::translate(model, glm::vec3(1.0, 1.0, -3.0));
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0, 1.0, 0.0));
         cubeShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         model = glm::mat4(1.0);
         cubeShader.setMat4("projection", projection);
         cubeShader.setMat4("view", view);
         cubeShader.setMat4("model", model);
-
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
