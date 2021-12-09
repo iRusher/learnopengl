@@ -11,7 +11,6 @@ uniform float iTime;
 void main()
 {
     FragColor = vec4(fColor.xyz,0.3);
-
 //          vec2 iResolution = vec2(800,600);
 //     	    vec2 uv = gl_FragCoord.xy / iResolution.xy;
 //          vec2 pos = PI *(uv*2.-1.);
