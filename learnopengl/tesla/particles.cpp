@@ -207,7 +207,6 @@ int main() {
     Texture container("container.png");
     Shader boxShader("box.vs", "box.fs");
 
-
     GLuint VBO;
     GLfloat particle_quad[] = {
             0.0f, 1.0f, 0.0f, 1.0f,
@@ -234,9 +233,11 @@ int main() {
     for (int i = 0; i < 100; ++i) {
         Particle p;
         p.life = 0.0f;
-        p.velocity = glm::vec3(0, 1,0);
+        p.velocity = glm::vec3(0, -1, 1);
 
-        p.position = glm::vec3(0,0,0);
+        float x = (rand() % 100 - 50.0f) / 10.0f;
+//        float z =
+        p.position = glm::vec3(x, 0, 0);
 
         p.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
         particles.push_back(p);
@@ -260,7 +261,7 @@ int main() {
         glDisable(GL_BLEND);
 
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(3, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 view = glm::lookAt(glm::vec3(1, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         glm::mat4 model(1.0f);
         model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
 
@@ -270,7 +271,7 @@ int main() {
         boxShader.setMat4("view", view);
         boxShader.setMat4("model", model);
         boxShader.setMat4("projection", projection);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -296,7 +297,13 @@ int main() {
 
         for (int i = particles.size() - 1; i >= 0; --i) {
             Particle &p = particles[i];
-            p.position += deltaTime * p.velocity;
+
+            float t = 5.0 - p.life;
+            p.position.y = -( 3.0f * t * t ) / 2.0f;
+            p.position.z = 3.0 * t;
+
+
+//            p.position += deltaTime * p.velocity;
             p.life -= deltaTime;
 
             if (p.life >= 0.0f) {
