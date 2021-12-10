@@ -15,14 +15,33 @@
 #include "shader_m.h"
 #include "Texture.h"
 #include "Cube.h"
+#include "camera.h"
 
 #include "glcheck.h"
 #include "Log.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
+
+// window callbacks
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void processInput(GLFWwindow *window);
+
+void imguiInit(GLFWwindow *window);
+void imguiSetup();
+
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
 
 // Represents a single particle and its state
 struct Particle {
@@ -32,138 +51,6 @@ struct Particle {
     Particle() : position(0.0f), velocity(0.0f), color(1.0f), life(0.0f) {}
     Particle(glm::vec3 v, GLfloat l) : position(0.0f), velocity(v), color(1.0f), life(l) {}
 };
-
-
-//class ParticleEmitter {
-//
-//public:
-//    ParticleEmitter() : _amount(500), _particleShader(Shader("particles.vs", "particles.fs")), _texture(Texture("particles.png")) {
-//        init();
-//    };
-//
-//    void draw() {
-//        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-//        this->_particleShader.use();
-//        glBindVertexArray(this->_vao);
-//
-//        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-//        glm::mat4 view = glm::lookAt(glm::vec3(5, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-//        glm::mat4 model(1.0f);
-//        model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-//
-//        this->_particleShader.setMat4("projection", projection);
-//        this->_particleShader.setMat4("view", view);
-//        this->_particleShader.setMat4("model", model);
-//
-//        for (Particle particle : this->_particles) {
-//            if (particle.life > 0.0f) {
-//
-//                this->_particleShader.setVec2("offset", particle.position);
-//                this->_particleShader.setVec4("color", particle.color);
-//                glBindTexture(GL_TEXTURE_2D, _texture.getTextureId());
-//                glDrawArrays(GL_TRIANGLES, 0, 6);
-//            }
-//        }
-//        glBindVertexArray(0);
-//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    }
-//
-//
-//    void update(float dt, int newAmount, glm::vec2 position, glm::vec2 velocity) {
-//
-//        for (int i = 0; i < newAmount; ++i) {
-//            int unusedParticles = this->firstUnusedParticle();
-//            LOG_DEBUG("%d", unusedParticles);
-//            this->respawnParticle(this->_particles[unusedParticles], position, velocity);
-//        }
-//
-//        for (int i = 0; i < this->_amount; ++i) {
-//            Particle &p = this->_particles[i];
-//            p.life -= dt;
-//            if (p.life > 0.0f) {
-//                //                LOG_DEBUG("particle %f %f", p.position.x, p.position.y);
-//                p.position.x += p.velocity.x * dt;
-//                p.color.a -= dt * 2.5;
-//            }
-//        }
-//    }
-//
-//
-//    int firstUnusedParticle() {
-//        for (int i = _lastUsedParticle; i < this->_amount; ++i) {
-//            LOG_DEBUG("fff %d", i);
-//            if (this->_particles[i].life <= 0.0f) {
-//                _lastUsedParticle = i;
-//                return i;
-//            }
-//        }
-//
-//        for (int i = 0; i < _lastUsedParticle; ++i) {
-//            if (this->_particles[i].life <= 0.0f) {
-//                _lastUsedParticle = i;
-//                return i;
-//            }
-//        }
-//
-//        _lastUsedParticle = 0;
-//        return 0;
-//    }
-//
-//    void respawnParticle(Particle &particle, glm::vec2 &position, glm::vec2 &veclocity) {
-//        //        GLfloat random = ((rand() % 100) - 50) / 10.0f;
-//        //        GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
-//        particle.position = position;
-//        //        particle.position = position + random;
-//        //        particle.color = glm::vec4(rColor, rColor, rColor, 1.0f);
-//        particle.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
-//        particle.life = 3.0f;
-//        particle.velocity = veclocity;
-//    }
-//
-//
-//private:
-//    void init() {
-//        GLuint VBO;
-//        GLfloat particle_quad[] = {
-//                0.0f, 1.0f, 0.0f, 1.0f,
-//                1.0f, 0.0f, 1.0f, 0.0f,
-//                0.0f, 0.0f, 0.0f, 0.0f,
-//
-//                0.0f, 1.0f, 0.0f, 1.0f,
-//                1.0f, 1.0f, 1.0f, 1.0f,
-//                1.0f, 0.0f, 1.0f, 0.0f};
-//
-//        GLuint VAO;
-//        glGenVertexArrays(1, &VAO);
-//        glGenBuffers(1, &VBO);
-//        glBindVertexArray(VAO);
-//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
-//        glEnableVertexAttribArray(0);
-//        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *) 0);
-//        glBindVertexArray(0);
-//
-//        this->_vao = VAO;
-//        this->_vbo = VBO;
-//
-//        _particles.reserve(_amount);
-//        for (int i = 0; i < _amount; ++i) {
-//            _particles.emplace_back(glm::vec2(1, 1), 1);
-//        }
-//    }
-//
-//
-//    std::vector<Particle> _particles;
-//    int _amount;
-//
-//    Shader _particleShader;
-//    Texture _texture;
-//
-//    GLuint _vao;
-//    GLuint _vbo;
-//
-//    int _lastUsedParticle = 0;
-//};
 
 
 int particleAmount = 500;
@@ -190,12 +77,14 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     //    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    //    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    imguiInit(window);
 
     Shader particleShader("particles.vs", "particles.fs");
     Texture texture("particles.png");
@@ -236,7 +125,7 @@ int main() {
         p.velocity = glm::vec3(0, -1, 1);
 
         float x = (rand() % 100 - 50.0f) / 10.0f;
-//        float z =
+        //        float z =
         p.position = glm::vec3(x, 0, 0);
 
         p.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
@@ -255,13 +144,16 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        processInput(window);
+
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         glDisable(GL_BLEND);
 
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(1, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model(1.0f);
         model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
 
@@ -271,7 +163,7 @@ int main() {
         boxShader.setMat4("view", view);
         boxShader.setMat4("model", model);
         boxShader.setMat4("projection", projection);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -299,11 +191,10 @@ int main() {
             Particle &p = particles[i];
 
             float t = 5.0 - p.life;
-            p.position.y = -( 3.0f * t * t ) / 2.0f;
+            p.position.y = -(3.0f * t * t) / 2.0f;
             p.position.z = 3.0 * t;
 
 
-//            p.position += deltaTime * p.velocity;
             p.life -= deltaTime;
 
             if (p.life >= 0.0f) {
@@ -313,6 +204,17 @@ int main() {
                 glDrawArrays(GL_TRIANGLES, 0, 6);
             }
         }
+
+        imguiSetup();
+
+
+        ImGui::Begin("RenderViewer");
+        ImGui::Text("Test");//至少要添加一个widget，不然不会渲染window
+        ImGui::End();
+
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 
         glfwSwapBuffers(window);
@@ -327,5 +229,58 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS)
+        firstMouse = true;
+}
+
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) return;
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void imguiInit(GLFWwindow *window) {
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    const char *glsl_version = "#version 330";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+};
+
+
+void imguiSetup() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 }
