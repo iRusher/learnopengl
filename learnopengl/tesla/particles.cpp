@@ -77,8 +77,7 @@ int findUnusedParticle() {
             return i;
         }
     }
-
-    return 0;// All particles are taken, override the first one
+    return 0;
 }
 
 void SortParticles() {
@@ -147,27 +146,7 @@ int main() {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *) 0);
     glBindVertexArray(0);
 
-    //    std::vector<Particle> particles;
-    //    particles.reserve(100);
-    //
-    //    for (int i = 0; i < 100; ++i) {
-    //        Particle p;
-    //        p.life = 0.0f;
-    //        p.velocity = glm::vec3(0, -1, 1);
-    //
-    //        float x = (rand() % 100 - 50.0f) / 10.0f;
-    //        //        float z =
-    //        p.position = glm::vec3(x, 0, 0);
-    //
-    //        p.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
-    //        particles.push_back(p);
-    //    }
-
-
     glEnable(GL_DEPTH_TEST);
-
-    int lastParticles = 0;
-    int newAmount = 10;
 
     //range value
     static float f32_right = 10.0f;
@@ -254,7 +233,7 @@ int main() {
 
         for (int i = 0; i < newparticles; i++) {
             int particleIndex = findUnusedParticle();
-            LOG_DEBUG("%d", particleIndex);
+            //            LOG_DEBUG("%d", particleIndex);
 
             Particle &p = particlesContainer[particleIndex];
             p.life = particle_life;
@@ -271,10 +250,10 @@ int main() {
 
             p.velocity = maindir + randomdir * spread;
 
-            p.color.r = rand() % 256;
-            p.color.g = rand() % 256;
-            p.color.b = rand() % 256;
-            p.color.a = (rand() % 256) / 3;
+            p.color.r = (rand() % 256) / 256.0f;
+            p.color.g = (rand() % 256) / 256.0f;
+            p.color.b = (rand() % 256) / 256.0f;
+            p.color.a = 1.0f;
 
             p.size = (rand() % 1000) / 2000.0f + 0.1f;
         }
@@ -288,7 +267,6 @@ int main() {
                 if (p.life > 0.0f) {
                     p.velocity += glm::vec3(f32_horizontal, f32_gravatiy, 0.0f) * (float) deltaTime;
                     p.position += p.velocity * (float) deltaTime;
-                    //                    LOG_DEBUG("%f %f %f", p.position.x, p.position.y, p.position.z);
                     p.cameradistance = glm::length(p.position - camera.Position);
                 } else {
                     p.cameradistance = -1.0f;
@@ -298,9 +276,13 @@ int main() {
         }
 
         SortParticles();
+
         for (int i = 0; i < MaxParticles; i++) {
             Particle &p = particlesContainer[i];
             if (p.life > 0.0f) {
+
+                LOG_DEBUG("%f", p.cameradistance);
+
                 particleShader.setVec3("offset", p.position);
                 particleShader.setVec4("color", p.color);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -308,7 +290,7 @@ int main() {
         }
 
         //        // update
-        //        for (int i = lastParticles; (i < lastParticles + newAmount) && (i < particles.size()); ++i) {
+        //        for (int i = lastParticles; (i < lastParticles + newAmount) && (i < particles.size()); ++i) {wa
         //            LOG_DEBUG("%d", i);
         //            Particle &p = particles[i];
         //            p.life = 5.0f;
@@ -335,7 +317,7 @@ int main() {
 
         imguiSetup();
 
-        ImGui::ShowDemoWindow(&showDemo);
+        //        ImGui::ShowDemoWindow(&showDemo);
 
         ImGui::Begin("AirCondition");
         ImGui::SliderScalar("Horizontal", ImGuiDataType_Float, &f32_horizontal, &f32_left, &f32_right);
@@ -360,7 +342,6 @@ int main() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -370,7 +351,7 @@ int main() {
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width * 2, height * 2);
 }
 
 void processInput(GLFWwindow *window) {

@@ -17,5 +17,4 @@ void main()
     TexCoords = vertex.zw;
     ParticleColor = color;
     gl_Position = projection * view * model * vec4((vertex.xy) + offset.xy, offset.z, 1.0);
-
 }
