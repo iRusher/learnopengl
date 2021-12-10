@@ -182,7 +182,7 @@ int main() {
 
     static float f32_max_life = 10;
 
-    static float f32_startx_max = 10;
+    static float f32_startx_max = 20;
 
     // air condition params
     static float f32_horizontal = 0.0f;
@@ -248,9 +248,9 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture.getTextureId());
         glBindVertexArray(VAO);
 
-        int newparticles = (int) (deltaTime * 10000.0);
-        if (newparticles > (int) (0.016f * 10000.0))
-            newparticles = (int) (0.016f * 10000.0);
+        int newparticles = (int) (deltaTime * 1000.0);
+        if (newparticles > (int) (0.016f * 1000.0))
+            newparticles = (int) (0.016f * 1000.0);
 
         for (int i = 0; i < newparticles; i++) {
             int particleIndex = findUnusedParticle();
