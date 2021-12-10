@@ -188,7 +188,6 @@ int main() {
     static float f32_horizontal = 0.0f;
     static float f32_strength = 0.5f;
 
-
     // particle params
     static float f32_gravatiy = -9.8f;
     static float particle_colors[4];
@@ -198,7 +197,8 @@ int main() {
     static float particle_life = 5.0;
 
     static float particle_start_max_x = 5;
-
+    static float particle_start_max_y = 0;
+    static float particle_start_max_z = 0;
 
     static bool showDemo;
     float clearColor[4];
@@ -260,7 +260,7 @@ int main() {
             p.life = particle_life;
 
             float startLeftX = (rand() % 2000 - 1000.0f) / 1000.0f * particle_start_max_x;
-            p.position = glm::vec3(startLeftX, 0, 0.0f);
+            p.position = glm::vec3(startLeftX, particle_start_max_y, particle_start_max_z);
 
             float spread = 1.5f;
             glm::vec3 maindir = glm::vec3(particle_init_v_x, particle_init_v_y, particle_init_v_z);
@@ -351,6 +351,8 @@ int main() {
         ImGui::SliderScalar("StartVelocity Z", ImGuiDataType_Float, &particle_init_v_z, &f32_min_init_v, &f32_max_init_v);
         ImGui::SliderScalar("Life", ImGuiDataType_Float, &particle_life, &f32_zero, &f32_max_life);
         ImGui::SliderScalar("Start Position X Range", ImGuiDataType_Float, &particle_start_max_x, &f32_zero, &f32_startx_max);
+        ImGui::SliderScalar("Start Position Y", ImGuiDataType_Float, &particle_start_max_y, &f32_min_init_v, &f32_max_init_v);
+        ImGui::SliderScalar("Start Position Z", ImGuiDataType_Float, &particle_start_max_z, &f32_min_init_v, &f32_max_init_v);
         ImGui::ColorEdit4("Particle Color", particle_colors);
         ImGui::End();
 
