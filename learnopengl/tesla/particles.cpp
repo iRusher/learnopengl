@@ -59,20 +59,20 @@ struct Particle {
 };
 
 
-const int MaxParticles = 500;
+const int MaxParticles = 10000;
 Particle particlesContainer[MaxParticles];
 int lastUsedParticle = 0;
 int findUnusedParticle() {
 
     for (int i = lastUsedParticle; i < MaxParticles; i++) {
-        if (particlesContainer[i].life < 0) {
+        if ((particlesContainer[i].life - 0.00001) <= 0) {
             lastUsedParticle = i;
             return i;
         }
     }
 
     for (int i = 0; i < lastUsedParticle; i++) {
-        if (particlesContainer[i].life < 0) {
+        if ((particlesContainer[i].life - 0.00001) <= 0) {
             lastUsedParticle = i;
             return i;
         }
@@ -147,21 +147,21 @@ int main() {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *) 0);
     glBindVertexArray(0);
 
-    std::vector<Particle> particles;
-    particles.reserve(100);
-
-    for (int i = 0; i < 100; ++i) {
-        Particle p;
-        p.life = 0.0f;
-        p.velocity = glm::vec3(0, -1, 1);
-
-        float x = (rand() % 100 - 50.0f) / 10.0f;
-        //        float z =
-        p.position = glm::vec3(x, 0, 0);
-
-        p.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
-        particles.push_back(p);
-    }
+    //    std::vector<Particle> particles;
+    //    particles.reserve(100);
+    //
+    //    for (int i = 0; i < 100; ++i) {
+    //        Particle p;
+    //        p.life = 0.0f;
+    //        p.velocity = glm::vec3(0, -1, 1);
+    //
+    //        float x = (rand() % 100 - 50.0f) / 10.0f;
+    //        //        float z =
+    //        p.position = glm::vec3(x, 0, 0);
+    //
+    //        p.color = glm::vec4(1.0, 0.0, 0.0, 1.0);
+    //        particles.push_back(p);
+    //    }
 
 
     glEnable(GL_DEPTH_TEST);
@@ -170,23 +170,35 @@ int main() {
     int newAmount = 10;
 
     //range value
-    static float f32_right = -5.0f;
-    static float f32_left = 5.0f;
-    static float f32_up = 5.0f;
-    static float f32_down = -5.0f;
+    static float f32_right = 10.0f;
+    static float f32_left = -10.0f;
     static float f32_zero = 0.0f;
     static float f32_one = 1.0f;
     static float f32_min_g = -9.8f;
     static float f32_max_g = 9.8f;
 
+    static float f32_min_init_v = -10;
+    static float f32_max_init_v = 10;
+
+    static float f32_max_life = 10;
+
+    static float f32_startx_max = 10;
+
     // air condition params
     static float f32_horizontal = 0.0f;
-    static float f32_vertical = 0.0f;
     static float f32_strength = 0.5f;
 
+
     // particle params
-    static float f32_gravatiy = 0.5f;
+    static float f32_gravatiy = -9.8f;
     static float particle_colors[4];
+    static float particle_init_v_x = 0.0;
+    static float particle_init_v_y = 5.0;
+    static float particle_init_v_z = 5.0;
+    static float particle_life = 5.0;
+
+    static float particle_start_max_x = 5;
+
 
     static bool showDemo;
     float clearColor[4];
@@ -212,12 +224,15 @@ int main() {
         box.bindVAO();
         boxShader.use();
         glBindTexture(GL_TEXTURE_2D, container.getTextureId());
-        model = glm::translate(model, glm::vec3(0, 1, 0));
-        model = glm::scale(model, glm::vec3(4, 1, 1));
-        boxShader.setMat4("view", view);
-        boxShader.setMat4("model", model);
-        boxShader.setMat4("projection", projection);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for (int i = 0; i < 3; ++i) {
+            model = glm::mat4(1.0);
+            model = glm::translate(model, glm::vec3(i - 1, 1, 0));
+            boxShader.setMat4("view", view);
+            boxShader.setMat4("model", model);
+            boxShader.setMat4("projection", projection);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -239,41 +254,42 @@ int main() {
 
         for (int i = 0; i < newparticles; i++) {
             int particleIndex = findUnusedParticle();
-            particlesContainer[particleIndex].life = 5.0f;// This particle will live 5 seconds.
-            particlesContainer[particleIndex].position = glm::vec3(0, 0, -20.0f);
+            LOG_DEBUG("%d", particleIndex);
+
+            Particle &p = particlesContainer[particleIndex];
+            p.life = particle_life;
+
+            float startLeftX = (rand() % 2000 - 1000.0f) / 1000.0f * particle_start_max_x;
+            p.position = glm::vec3(startLeftX, 0, 0.0f);
 
             float spread = 1.5f;
-            glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f);
+            glm::vec3 maindir = glm::vec3(particle_init_v_x, particle_init_v_y, particle_init_v_z);
             glm::vec3 randomdir = glm::vec3(
                     (rand() % 2000 - 1000.0f) / 1000.0f,
                     (rand() % 2000 - 1000.0f) / 1000.0f,
                     (rand() % 2000 - 1000.0f) / 1000.0f);
 
-            particlesContainer[particleIndex].velocity = maindir + randomdir * spread;
+            p.velocity = maindir + randomdir * spread;
 
-            particlesContainer[particleIndex].color.r = rand() % 256;
-            particlesContainer[particleIndex].color.g = rand() % 256;
-            particlesContainer[particleIndex].color.b = rand() % 256;
-            particlesContainer[particleIndex].color.a = (rand() % 256) / 3;
+            p.color.r = rand() % 256;
+            p.color.g = rand() % 256;
+            p.color.b = rand() % 256;
+            p.color.a = (rand() % 256) / 3;
 
-            particlesContainer[particleIndex].size = (rand() % 1000) / 2000.0f + 0.1f;
+            p.size = (rand() % 1000) / 2000.0f + 0.1f;
         }
 
         // Simulate all particles
         int ParticlesCount = 0;
         for (int i = 0; i < MaxParticles; i++) {
-
             Particle &p = particlesContainer[i];// shortcut
-
             if (p.life > 0.0f) {
-
                 p.life -= deltaTime;
                 if (p.life > 0.0f) {
-
-                    p.velocity += glm::vec3(0.0f, -9.81f, 0.0f) * (float) deltaTime * 0.5f;
+                    p.velocity += glm::vec3(f32_horizontal, f32_gravatiy, 0.0f) * (float) deltaTime;
                     p.position += p.velocity * (float) deltaTime;
+                    //                    LOG_DEBUG("%f %f %f", p.position.x, p.position.y, p.position.z);
                     p.cameradistance = glm::length(p.position - camera.Position);
-
                 } else {
                     p.cameradistance = -1.0f;
                 }
@@ -283,7 +299,7 @@ int main() {
 
         SortParticles();
         for (int i = 0; i < MaxParticles; i++) {
-            Particle &p = particlesContainer[i];// shortcut
+            Particle &p = particlesContainer[i];
             if (p.life > 0.0f) {
                 particleShader.setVec3("offset", p.position);
                 particleShader.setVec4("color", p.color);
@@ -323,13 +339,18 @@ int main() {
 
         ImGui::Begin("AirCondition");
         ImGui::SliderScalar("Horizontal", ImGuiDataType_Float, &f32_horizontal, &f32_left, &f32_right);
-        ImGui::SliderScalar("Vertical", ImGuiDataType_Float, &f32_vertical, &f32_up, &f32_down);
+        ImGui::SliderScalar("Vertical", ImGuiDataType_Float, &f32_gravatiy, &f32_min_g, &f32_max_g);
         ImGui::SliderScalar("Strength", ImGuiDataType_Float, &f32_strength, &f32_zero, &f32_one);
         ImGui::End();
 
         ImGui::Begin("Particles");
         ImGui::ColorEdit4("Clear Color", clearColor);
         ImGui::SliderScalar("Gravity", ImGuiDataType_Float, &f32_gravatiy, &f32_min_g, &f32_max_g);
+        ImGui::SliderScalar("StartVelocity X", ImGuiDataType_Float, &particle_init_v_x, &f32_min_init_v, &f32_max_init_v);
+        ImGui::SliderScalar("StartVelocity Y", ImGuiDataType_Float, &particle_init_v_y, &f32_min_init_v, &f32_max_init_v);
+        ImGui::SliderScalar("StartVelocity Z", ImGuiDataType_Float, &particle_init_v_z, &f32_min_init_v, &f32_max_init_v);
+        ImGui::SliderScalar("Life", ImGuiDataType_Float, &particle_life, &f32_zero, &f32_max_life);
+        ImGui::SliderScalar("Start Position X Range", ImGuiDataType_Float, &particle_start_max_x, &f32_zero, &f32_startx_max);
         ImGui::ColorEdit4("Particle Color", particle_colors);
         ImGui::End();
 
