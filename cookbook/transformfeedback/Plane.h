@@ -20,14 +20,20 @@ public:
 private:
     void gen() {
 
+        for (int i = 0; i < _verticesCount; ++i) {
+            _vertices.push_back(i * 0.1);
+            _vertices.push_back(0);
+            _vertices.push_back(0);
+        }
+
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, _vertices.size(), _vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(GLfloat), _vertices.data(), GL_STATIC_DRAW);
 
         glGenVertexArrays(1, &_vao);
         glBindVertexArray(_vao);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *) 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
         glEnableVertexAttribArray(0);
 
         glBindVertexArray(0);
@@ -40,7 +46,7 @@ private:
     float yDiv = 10;
 
     int _verticesCount = 10;
-    std::vector<GLfloat> _vertices {0,0,0, 0.2,0.2,0};
+    std::vector<GLfloat> _vertices;
 
     GLuint _vao;
 };

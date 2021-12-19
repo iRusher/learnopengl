@@ -8,6 +8,5 @@ uniform mat4 projection;
 void main()
 {
     vec4 pos = vec4(aPos.xyz,1.0);
-    // gl_Position =  projection * view * model * pos;
     gl_Position = pos;
 }

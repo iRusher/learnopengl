@@ -65,15 +65,7 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-//        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 4), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-//        glm::mat4 model(1.0f);
-//
-//        cubeShader.setMat4("projection", projection);
-//        cubeShader.setMat4("view", view);
-//        cubeShader.setMat4("model", model);
-
-        glDrawArrays(GL_POINTS,0,plane.getVerticesCount());
+        glDrawArrays(GL_POINTS,0 , plane.getVerticesCount());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -84,7 +76,7 @@ int main() {
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width , height);
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
