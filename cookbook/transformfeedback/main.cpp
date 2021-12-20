@@ -96,10 +96,18 @@ int main() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-//    GLuint feedbackBuffer[2];
-//    glGenBuffers(2, feedbackBuffer);
-//    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer[0]);
-//    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo);
+
+    GLuint feedbackDataBuffer;// long long away
+    glGenBuffers(1, &feedbackDataBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, feedbackDataBuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), nullptr, GL_DYNAMIC_COPY);
+
+    GLuint feedbackBuffer;
+    glGenBuffers(1, &feedbackBuffer);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackDataBuffer);
+
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 
     glBindVertexArray(vao);
 
@@ -114,9 +122,15 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        glDrawArrays(GL_POINTS, 0, verticesCount);
+        glEnable(GL_RASTERIZER_DISCARD);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer);
+        glBeginTransformFeedback(GL_POINTS);
+        glDrawArrays(GL_POINTS, 0, verticesCount);
+        glEndTransformFeedback();
 
-        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
+        glDisable(GL_RASTERIZER_DISCARD);
+
+//        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
