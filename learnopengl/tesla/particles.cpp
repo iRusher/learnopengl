@@ -277,17 +277,19 @@ int main() {
 
         SortParticles();
 
+        glDepthMask(GL_FALSE);
         for (int i = 0; i < MaxParticles; i++) {
             Particle &p = particlesContainer[i];
             if (p.life > 0.0f) {
 
-                LOG_DEBUG("%f", p.cameradistance);
+                LOG_DEBUG("%f", p.position.z);
 
                 particleShader.setVec3("offset", p.position);
                 particleShader.setVec4("color", p.color);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
             }
         }
+        glDepthMask(GL_TRUE);
 
         //        // update
         //        for (int i = lastParticles; (i < lastParticles + newAmount) && (i < particles.size()); ++i) {wa
