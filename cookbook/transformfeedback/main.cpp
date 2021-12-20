@@ -52,12 +52,61 @@ int main() {
         return -1;
     }
 
-    Plane plane;
-    plane.bindVAO();
+    //    Plane plane;
+    //    plane.bindVAO();
+
+    // VAO
+    // VBO1
+    // VBO1 data
+    // VBO1 vao pointer
+    // VBO1 vao divisor
+
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    std::vector<GLfloat> vertices;
+    int verticesCount = 10;
+    for (int i = 0; i < 1; ++i) {
+        vertices.push_back(i * 0.1);
+        vertices.push_back(0);
+        vertices.push_back(0);
+    }
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW));
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr));
+    glEnableVertexAttribArray(0);
+
+    std::vector<GLfloat> deltaData;
+    for (int i = 0; i < verticesCount; ++i) {
+        deltaData.push_back(i * 0.1);
+    }
+    GLuint deltaVBO;
+    glGenBuffers(1, &deltaVBO);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, deltaVBO));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, deltaData.size() * sizeof(GLfloat), deltaData.data(), GL_STREAM_DRAW));
+
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(GLfloat), nullptr);
+    glEnableVertexAttribArray(1);
+    glVertexAttribDivisor(1, 1);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+//    GLuint feedbackBuffer[2];
+//    glGenBuffers(2, feedbackBuffer);
+//    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer[0]);
+//    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo);
+
+    glBindVertexArray(vao);
 
     Shader cubeShader("shaders/cube.vs", "shaders/cube.fs");
     cubeShader.use();
 
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glPointSize(10.0f);
 
     while (!glfwWindowShouldClose(window)) {
@@ -65,7 +114,9 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDrawArrays(GL_POINTS,0 , plane.getVerticesCount());
+//        glDrawArrays(GL_POINTS, 0, verticesCount);
+
+        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -76,7 +127,7 @@ int main() {
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width , height);
+    glViewport(0, 0, width, height);
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {

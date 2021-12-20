@@ -118,8 +118,6 @@ int main() {
         glBindVertexArray(vao);
         cube.use();
 
-
-
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 
         glfwSwapBuffers(window);
