@@ -6,9 +6,17 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform int pass;
+
+out vec3 outPos; //transform feedback
+
 void main()
 {
-    gl_PointSize = gl_InstanceID * 2;
-    vec4 pos = vec4(aPos.x  + aDelta,aPos.y + aDelta, 0.0, 1.0);
-    gl_Position = pos;
+    if (pass == 0) {
+        outPos = vec3(aPos.x,aPos.y + aDelta, 0.0);
+    } else {
+        //gl_PointSize = gl_InstanceID * 1;
+        vec4 pos = vec4(aPos,1.0);
+        gl_Position = pos;
+    }
 }

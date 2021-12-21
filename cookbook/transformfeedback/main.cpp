@@ -29,8 +29,8 @@ const unsigned int SCR_HEIGHT = 600;
 int main() {
 
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -61,76 +61,85 @@ int main() {
     // VBO1 vao pointer
     // VBO1 vao divisor
 
-
     GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    GL_CHECK(glGenVertexArrays(1, &vao));
+    GL_CHECK(glBindVertexArray(vao));
 
     std::vector<GLfloat> vertices;
     int verticesCount = 10;
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < 10; ++i) {
         vertices.push_back(i * 0.1);
         vertices.push_back(0);
         vertices.push_back(0);
     }
     GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    GL_CHECK(glGenBuffers(1, &vbo));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW));
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr));
-    glEnableVertexAttribArray(0);
+    GL_CHECK(glEnableVertexAttribArray(0));
 
     std::vector<GLfloat> deltaData;
     for (int i = 0; i < verticesCount; ++i) {
-        deltaData.push_back(i * 0.1);
+        deltaData.push_back(0.1);
     }
     GLuint deltaVBO;
-    glGenBuffers(1, &deltaVBO);
+    GL_CHECK(glGenBuffers(1, &deltaVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, deltaVBO));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, deltaData.size() * sizeof(GLfloat), deltaData.data(), GL_STREAM_DRAW));
 
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(GLfloat), nullptr);
-    glEnableVertexAttribArray(1);
-    glVertexAttribDivisor(1, 1);
+    GL_CHECK(glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(GLfloat), nullptr));
+    GL_CHECK(glEnableVertexAttribArray(1));
+//    GL_CHECK(glVertexAttribDivisor(1, 1));
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindVertexArray(0));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-
-    GLuint feedbackDataBuffer;// long long away
-    glGenBuffers(1, &feedbackDataBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, feedbackDataBuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), nullptr, GL_DYNAMIC_COPY);
+    GLuint feedbackDataBuffer;
+    GL_CHECK(glGenBuffers(1, &feedbackDataBuffer));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, feedbackDataBuffer));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), nullptr, GL_DYNAMIC_COPY));
 
     GLuint feedbackBuffer;
-    glGenBuffers(1, &feedbackBuffer);
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackDataBuffer);
+    GL_CHECK(glGenTransformFeedbacks(1, &feedbackBuffer));
+    GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer));
+    GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackDataBuffer));
+    GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
-    glBindVertexArray(vao);
+    GLuint feedbackVAO;
+    GL_CHECK(glGenVertexArrays(1, &feedbackVAO));
+    GL_CHECK(glBindVertexArray(feedbackVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, feedbackDataBuffer));
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr));
+    GL_CHECK(glEnableVertexAttribArray(0));
+    GL_CHECK(glBindVertexArray(0));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     Shader cubeShader("shaders/cube.vs", "shaders/cube.fs");
     cubeShader.use();
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(10.0f);
+    GL_CHECK(glEnable(GL_PROGRAM_POINT_SIZE));
+    GL_CHECK(glPointSize(10.0f));
 
     while (!glfwWindowShouldClose(window)) {
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        glEnable(GL_RASTERIZER_DISCARD);
-        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer);
-        glBeginTransformFeedback(GL_POINTS);
-        glDrawArrays(GL_POINTS, 0, verticesCount);
-        glEndTransformFeedback();
-
-        glDisable(GL_RASTERIZER_DISCARD);
-
+        cubeShader.setInt("pass", 0);
+        GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
+        GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffer));
+        GL_CHECK(glBeginTransformFeedback(GL_POINTS));
+        GL_CHECK(glBindVertexArray(vao));
+        GL_CHECK(glDrawArrays(GL_POINTS, 0, verticesCount));
 //        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
+        GL_CHECK(glEndTransformFeedback());
+        GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
+
+        glBindVertexArray(feedbackVAO);
+        cubeShader.setInt("pass", 1);
+        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
