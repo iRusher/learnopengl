@@ -15,7 +15,7 @@ void main()
     if (pass == 0) {
         outPos = vec3(aPos.x,aPos.y + aDelta, 0.0);
     } else {
-        //gl_PointSize = gl_InstanceID * 1;
+        gl_PointSize = gl_InstanceID * 1;
         vec4 pos = vec4(aPos,1.0);
         gl_Position = pos;
     }

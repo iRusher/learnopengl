@@ -54,7 +54,6 @@ int main() {
 
     //    Plane plane;
     //    plane.bindVAO();
-
     // VAO
     // VBO1
     // VBO1 data
@@ -81,16 +80,16 @@ int main() {
 
     std::vector<GLfloat> deltaData;
     for (int i = 0; i < verticesCount; ++i) {
-        deltaData.push_back(0.1);
+        deltaData.push_back(0.1 * i);
     }
     GLuint deltaVBO;
     GL_CHECK(glGenBuffers(1, &deltaVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, deltaVBO));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, deltaData.size() * sizeof(GLfloat), deltaData.data(), GL_STREAM_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, deltaData.size() * sizeof(GLfloat), deltaData.data(), GL_STATIC_DRAW));
 
     GL_CHECK(glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(GLfloat), nullptr));
     GL_CHECK(glEnableVertexAttribArray(1));
-//    GL_CHECK(glVertexAttribDivisor(1, 1));
+    //    GL_CHECK(glVertexAttribDivisor(1, 1));
 
     GL_CHECK(glBindVertexArray(0));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -116,7 +115,8 @@ int main() {
     GL_CHECK(glBindVertexArray(0));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    Shader cubeShader("shaders/cube.vs", "shaders/cube.fs");
+    const char *outputNames[] = {"outPos"};
+    Shader cubeShader("shaders/cube.vs", "shaders/cube.fs", nullptr, outputNames);
     cubeShader.use();
 
     GL_CHECK(glEnable(GL_PROGRAM_POINT_SIZE));
@@ -133,11 +133,10 @@ int main() {
         GL_CHECK(glBeginTransformFeedback(GL_POINTS));
         GL_CHECK(glBindVertexArray(vao));
         GL_CHECK(glDrawArrays(GL_POINTS, 0, verticesCount));
-//        GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
         GL_CHECK(glEndTransformFeedback());
         GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
 
-        glBindVertexArray(feedbackVAO);
+        GL_CHECK(glBindVertexArray(feedbackVAO));
         cubeShader.setInt("pass", 1);
         GL_CHECK(glDrawArraysInstanced(GL_POINTS, 0, 10, 10));
 
