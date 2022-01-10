@@ -14,6 +14,7 @@
 #include <iostream>
 #include "glcheck.h"
 #include "Plane.h"
+#include "RandomTexture.h"
 
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -118,6 +119,10 @@ int main() {
     const char *outputNames[] = {"outPos"};
     Shader cubeShader("shaders/cube.vs", "shaders/cube.fs", nullptr, outputNames);
     cubeShader.use();
+
+    GLuint textureId = RandomTexture::create1D(10);
+    GL_CHECK(glActiveTexture(GL_TEXTURE0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_1D, textureId));
 
     GL_CHECK(glEnable(GL_PROGRAM_POINT_SIZE));
     GL_CHECK(glPointSize(10.0f));

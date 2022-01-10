@@ -1,7 +1,7 @@
 #file(COPY ${CMAKE_CURRENT_LIST_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-include_directories(../..//learnopengl/include)
-add_executable(cookbook_transformfeedback main.cpp)
+include_directories(../../learnopengl/include)
+add_executable(cookbook_transformfeedback main.cpp RandomTexture.h)
 
 target_link_libraries(cookbook_transformfeedback glfw)
 target_link_libraries(cookbook_transformfeedback glad)
