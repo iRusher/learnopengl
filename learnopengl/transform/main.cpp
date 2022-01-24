@@ -34,6 +34,8 @@ void imguiRendering();
 
 glm::mat4 camerViewMat();
 
+Cube *cube;
+Shader *shader;
 void render();
 
 // settings
@@ -102,7 +104,14 @@ int main() {
         return -1;
     }
 
+    cube = new Cube;
+    shader = new Shader("cube_vs.glsl", "cube_fs.glsl");
+
     imguiInit(window);
+
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -129,6 +138,20 @@ int main() {
     return 0;
 }
 void render() {
+
+    cube->bindVAO();
+    shader->use();
+
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    shader->setMat4("projection", projection);
+    shader->setMat4("view", view);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model,(float)glfwGetTime(),glm::vec3(0,1,0));
+    shader->setMat4("model", model);
+
+    glDrawArrays(GL_TRIANGLES, 0, cube->verticesCount());
 }
 
 void processInput(GLFWwindow *window) {

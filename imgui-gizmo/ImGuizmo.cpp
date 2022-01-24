@@ -2398,7 +2398,7 @@ namespace ImGuizmo
          isDraging = false;
       }
 
-      if (isDraging)
+      if(isDraging)
       {
          matrix_t rx, ry, roll;
 
