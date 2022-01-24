@@ -12,6 +12,7 @@ out vec3 outPos; //transform feedback
 
 uniform sampler1D t;
 
+
 void main()
 {
     if (pass == 0) {

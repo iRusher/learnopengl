@@ -30,8 +30,8 @@ const unsigned int SCR_HEIGHT = 600;
 int main() {
 
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -120,9 +120,19 @@ int main() {
     Shader cubeShader("shaders/cube.vs", "shaders/cube.fs", nullptr, outputNames);
     cubeShader.use();
 
+    GLint tLoc = glGetUniformLocation(cubeShader.ID, "t");
+    GLint containerLoc = glGetUniformLocation(cubeShader.ID, "container");
+    glUniform1i(tLoc, 0);
+    glUniform1i(containerLoc, 1);
+
     GLuint textureId = RandomTexture::create1D(10);
     GL_CHECK(glActiveTexture(GL_TEXTURE0));
     GL_CHECK(glBindTexture(GL_TEXTURE_1D, textureId));
+
+    Texture container("container.png");
+    GLuint tid = container.getTextureId();
+    GL_CHECK(glActiveTexture(GL_TEXTURE1));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, tid));
 
     GL_CHECK(glEnable(GL_PROGRAM_POINT_SIZE));
     GL_CHECK(glPointSize(10.0f));

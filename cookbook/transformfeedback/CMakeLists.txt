@@ -1,5 +1,7 @@
 #file(COPY ${CMAKE_CURRENT_LIST_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+configure_file(container.png container.png COPYONLY)
+
 include_directories(../../learnopengl/include)
 add_executable(cookbook_transformfeedback main.cpp RandomTexture.h)
 
