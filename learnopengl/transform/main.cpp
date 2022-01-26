@@ -19,7 +19,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Cube.h"
-
+#include "Plane.h"
+#include "Axis.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
@@ -36,6 +37,9 @@ glm::mat4 camerViewMat();
 
 Cube *cube;
 Shader *shader;
+Shader *axisShader;
+sr::Plane *plane;
+Axis *axis;
 void render();
 
 // settings
@@ -106,12 +110,21 @@ int main() {
 
     cube = new Cube;
     shader = new Shader("cube_vs.glsl", "cube_fs.glsl");
+    plane = new sr::Plane;
+    plane->init();
+
+    axis = new Axis;
+    axisShader = new Shader("axis_vs.glsl", "axis_fs.glsl");
+    axis->init();
 
     imguiInit(window);
 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -122,7 +135,7 @@ int main() {
 
         imguiSetup();
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         imguiDraw();
@@ -148,10 +161,25 @@ void render() {
     shader->setMat4("view", view);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model,(float)glfwGetTime(),glm::vec3(0,1,0));
+    model = glm::translate(model, glm::vec3(5, 5, -10.0));
+    model = glm::rotate(model, (float) glfwGetTime(), glm::vec3(1, 1, 0));
     shader->setMat4("model", model);
-
+    shader->setVec4("color", glm::vec4(1.0, 0.0, 0.0, 1.0));
     glDrawArrays(GL_TRIANGLES, 0, cube->verticesCount());
+
+    model = glm::mat4(1.0f);
+    model = glm::rotate(model, (float) glfwGetTime(), glm::vec3(0, 1, 0));
+    shader->setMat4("model", model);
+    shader->setVec4("color", glm::vec4(0.0, 0.0, 1.0, 0.3));
+    glDrawArrays(GL_TRIANGLES, 0, cube->verticesCount());
+
+//    plane->render();
+    axisShader->use();
+    model = glm::mat4(1.0f);
+    shader->setMat4("projection", projection);
+    shader->setMat4("view", view);
+    shader->setMat4("model", model);
+    axis->render();
 }
 
 void processInput(GLFWwindow *window) {
